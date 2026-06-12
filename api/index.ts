@@ -69,7 +69,11 @@ try {
   if (fs.existsSync(configPath)) {
     const firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
     const firebaseApp = initializeApp(firebaseConfig);
-    db = getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId);
+    // Use named database only if firestoreDatabaseId is present (AI Studio projects),
+    // otherwise use the default Firestore database (standard Firebase projects)
+    db = firebaseConfig.firestoreDatabaseId
+      ? getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId)
+      : getFirestore(firebaseApp);
     console.log("[FIREBASE] Firestore database initialized successfully on server.");
   }
 } catch (err) {
