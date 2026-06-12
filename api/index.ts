@@ -192,7 +192,7 @@ interface GlobalSettings {
 
 const DEFAULT_SETTINGS: GlobalSettings = {
   paymentAmount: 10000,
-  paystackPublicKey: "pk_test_a0d81fa0002bdf42ec73db6ffc2548cccdba9841",
+  paystackPublicKey: "pk_test_b9693c95959a7d36e5e58358466117694de2afbb",
   admissionStatus: "Open",
   announcementText: "🌟 SPECIAL ADMISSION WINDOW OPEN: ENROLL NOW WITH 100% SECURE INTEGRATION AND AI PATHWAY ADVISORY.",
   demoMode: true,

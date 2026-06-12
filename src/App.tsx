@@ -195,7 +195,7 @@ export default function App() {
   // Dynamic Settings and Admin Portal State
   const [settings, setSettings] = useState<any>({
     paymentAmount: 10000,
-    paystackPublicKey: "pk_test_a0d81fa0002bdf42ec73db6ffc2548cccdba9841",
+    paystackPublicKey: "pk_test_b9693c95959a7d36e5e58358466117694de2afbb",
     admissionStatus: "Open",
     announcementText: "🌟 SPECIAL ADMISSION WINDOW OPEN: ENROLL NOW WITH 100% SECURE INTEGRATION AND AI PATHWAY ADVISORY.",
     demoMode: true,
@@ -651,7 +651,7 @@ export default function App() {
     setIsPaying(true);
 
     try {
-      const paystackPublicKey = (import.meta as any).env.VITE_PAYSTACK_PUBLIC_KEY || "pk_test_a0d81fa0002bdf42ec73db6ffc2548cccdba9841";
+      const paystackPublicKey = (import.meta as any).env.VITE_PAYSTACK_PUBLIC_KEY || settings.paystackPublicKey;
       const PaystackPop = (window as any).PaystackPop;
       if (!PaystackPop) {
         throw new Error("Paystack SDK not found on the global window object.");
