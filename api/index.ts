@@ -2,7 +2,6 @@ import express from "express";
 import path from "path";
 import dotenv from "dotenv";
 import fs from "fs";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { initializeApp } from "firebase/app";
 import { 
@@ -64,6 +63,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 
 // Load Firebase configuration safely
 let db: any = null;
+let firebaseInitError: string | null = null;
 try {
   const configPath = path.join(process.cwd(), "firebase-applet-config.json");
   if (fs.existsSync(configPath)) {
@@ -75,9 +75,13 @@ try {
       ? getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId)
       : getFirestore(firebaseApp);
     console.log("[FIREBASE] Firestore database initialized successfully on server.");
+  } else {
+    console.warn("[FIREBASE] No firebase-applet-config.json found, using local file database only.");
   }
-} catch (err) {
-  console.error("[FIREBASE] Failed keyless initialization on server, falling back exclusively to local database file:", err);
+} catch (err: any) {
+  firebaseInitError = err?.message || String(err);
+  db = null; // Ensure db is null so file-based fallback is used
+  console.error("[FIREBASE] Failed initialization, falling back to local database file:", firebaseInitError);
 }
 
 // Persistent database storage paths
@@ -236,6 +240,17 @@ app.use(express.urlencoded({ extended: true }));
 
   // API Routes
   
+  // Health check / diagnostic endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({
+      status: "ok",
+      firebaseConnected: db !== null,
+      firebaseInitError: firebaseInitError,
+      isVercel: IS_VERCEL,
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // 0. Admin and Control Panel Endpoints
   app.get("/api/settings", (req, res) => {
     res.json({ success: true, data: globalSettingsObj });
@@ -600,6 +615,7 @@ async function startServer() {
 
   // Vite development vs production server static serving logic
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
