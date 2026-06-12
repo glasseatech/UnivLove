@@ -4153,19 +4153,7 @@ export default function App() {
                 {/* Scrollable Content wrapper */}
                 <div className="overflow-y-auto p-6 flex flex-col gap-5 leading-normal">
                   
-                  {/* Visual Aspect ratio picture */}
-                  <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative group bg-neutral-100 shrink-0">
-                    <div className="absolute inset-0 bg-neutral-900/10 pointer-events-none group-hover:bg-neutral-900/0 transition-colors duration-300 z-10" />
-                    <img 
-                      src={currentModalTab.image} 
-                      alt={currentModalTab.title} 
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                    <span className="absolute bottom-3 left-3 px-3 py-1 bg-black/80 text-white text-[9px] font-mono tracking-widest font-bold uppercase rounded-full z-20">
-                      {modalChapterTitle}
-                    </span>
-                  </div>
+
 
                   {/* Expanded Narrative */}
                   <div className="flex flex-col gap-2">

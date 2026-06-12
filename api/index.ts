@@ -122,31 +122,8 @@ function loadApplicationsFromDb(): any[] {
     console.error("Failed to load applications database, initializing default list:", err);
   }
   
-  // High-quality Initial seed datasets
-  const initialData = [
-    {
-      id: "APP-48218",
-      fullName: "Amara Adebayo",
-      email: "amara.bayo@example.com",
-      phone: "08106919577",
-      program: "JUPEB (Prevarsity Direct Entry)",
-      track: "Software Development & Cyber Security",
-      status: "Verified & Accepted",
-      notes: "Paid NGN 10,000 application fee. Ref: PSTK-SEED-892",
-      createdAt: new Date(Date.now() - 4 * 3600000).toISOString()
-    },
-    {
-      id: "APP-59302",
-      fullName: "Liam Sterling",
-      email: "liam.ster@example.com",
-      phone: "09161849691",
-      program: "Study Abroad & Scholarship Track",
-      track: "Canada (University of Toronto Pathway)",
-      status: "Verified & Accepted",
-      notes: "Paid NGN 10,000 application fee. Ref: PSTK-SEED-419",
-      createdAt: new Date(Date.now() - 2 * 3600000).toISOString()
-    }
-  ];
+  // Empty initial dataset
+  const initialData: any[] = [];
   
   saveApplicationsToDb(initialData);
   return initialData;
