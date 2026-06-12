@@ -2525,28 +2525,7 @@ export default function App() {
                   <div id="academic-details-panel" className="hidden lg:flex lg:col-span-5 relative flex-col justify-between bg-white rounded-3xl border border-neutral-200/90 p-6 shadow-sm overflow-hidden leading-normal">
                     
                     <div>
-                      {/* Visual Aspect ratio picture */}
-                      <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative group bg-neutral-100">
-                        <div className="absolute inset-0 bg-neutral-900/10 pointer-events-none group-hover:bg-neutral-900/0 transition-colors duration-300 z-10" />
-                        
-                        <AnimatePresence mode="wait">
-                          <motion.img 
-                            key={academicTabs[activeAcademicTab].image}
-                            src={academicTabs[activeAcademicTab].image} 
-                            alt={academicTabs[activeAcademicTab].title} 
-                            initial={{ opacity: 0, scale: 1.05 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.98 }}
-                            transition={{ duration: 0.35, ease: "easeOut" }}
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        </AnimatePresence>
 
-                        <span className="absolute bottom-3 left-3 px-3 py-1 bg-black/85 text-white text-[10px] font-mono tracking-widest font-bold uppercase rounded-full z-20">
-                          Academic Chapter I
-                        </span>
-                      </div>
 
                       {/* Expanded Narrative */}
                       <div className="mt-5 flex flex-col gap-2">
@@ -2683,28 +2662,7 @@ export default function App() {
                   <div id="tech-details-panel" className="hidden lg:flex lg:col-span-5 relative flex-col justify-between bg-white rounded-3xl border border-neutral-200/90 p-6 shadow-xs overflow-hidden leading-normal">
                     
                     <div>
-                      {/* Visual Aspect ratio picture */}
-                      <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative group bg-neutral-100">
-                        <div className="absolute inset-0 bg-neutral-900/10 pointer-events-none group-hover:bg-neutral-900/0 transition-colors duration-300 z-10" />
-                        
-                        <AnimatePresence mode="wait">
-                          <motion.img 
-                            key={techTabs[activeTechTab].image}
-                            src={techTabs[activeTechTab].image} 
-                            alt={techTabs[activeTechTab].title} 
-                            initial={{ opacity: 0, scale: 1.05 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.98 }}
-                            transition={{ duration: 0.35, ease: "easeOut" }}
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        </AnimatePresence>
 
-                        <span className="absolute bottom-3 left-3 px-3 py-1 bg-black/85 text-white text-[10px] font-mono tracking-widest font-bold uppercase rounded-full z-20">
-                          Tech Chapter II
-                        </span>
-                      </div>
 
                       {/* Expanded Narrative */}
                       <div className="mt-5 flex flex-col gap-2">
@@ -2841,28 +2799,7 @@ export default function App() {
                   <div id="vocational-details-panel" className="hidden lg:flex lg:col-span-5 relative flex-col justify-between bg-white rounded-3xl border border-neutral-200/90 p-6 shadow-xs overflow-hidden leading-normal">
                     
                     <div>
-                      {/* Visual Aspect ratio picture */}
-                      <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden relative group bg-neutral-100">
-                        <div className="absolute inset-0 bg-neutral-900/10 pointer-events-none group-hover:bg-neutral-900/0 transition-colors duration-300 z-10" />
-                        
-                        <AnimatePresence mode="wait">
-                          <motion.img 
-                            key={vocationalTabs[activeVocationalTab].image}
-                            src={vocationalTabs[activeVocationalTab].image} 
-                            alt={vocationalTabs[activeVocationalTab].title} 
-                            initial={{ opacity: 0, scale: 1.05 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.98 }}
-                            transition={{ duration: 0.35, ease: "easeOut" }}
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        </AnimatePresence>
 
-                        <span className="absolute bottom-3 left-3 px-3 py-1 bg-black/85 text-white text-[10px] font-mono tracking-widest font-bold uppercase rounded-full z-20">
-                          Craft Chapter III
-                        </span>
-                      </div>
 
                       {/* Expanded Narrative */}
                       <div className="mt-5 flex flex-col gap-2">
