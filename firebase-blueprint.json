@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "application": {
+      "title": "Application",
+      "description": "Information about a scholar's enrollment application",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "program": { "type": "string" },
+        "track": { "type": "string" },
+        "subProgram": { "type": "string" },
+        "status": { "type": "string" },
+        "notes": { "type": "string" },
+        "paymentRef": { "type": "string" },
+        "paymentAmount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "fullName", "email", "phone", "program"]
+    },
+    "advisorRequest": {
+      "title": "AdvisorRequest",
+      "description": "An enquiry or consultation call request of an advisory advisor",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "timeFrame": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "phone"]
+    }
+  },
+  "firestore": {
+    "/applications/{applicationId}": {
+      "schema": "application",
+      "description": "Collection of scholar and prevarsity applications"
+    },
+    "/advisors/{advisorRequestId}": {
+      "schema": "advisorRequest",
+      "description": "Collection of consultant advising request logs"
+    }
+  }
+}

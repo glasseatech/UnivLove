@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net default-deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper: Is valid ID pattern
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Helper: Validation fields for Application
+    function isValidApplication(data) {
+      return data.fullName is string && data.fullName.size() > 0 && data.fullName.size() <= 100
+        && data.email is string && data.email.size() > 0 && data.email.size() <= 100
+        && data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50
+        && data.program is string && data.program.size() > 0 && data.program.size() <= 200
+        && (!('track' in data) || (data.track is string && data.track.size() <= 100))
+        && (!('subProgram' in data) || (data.subProgram is string && data.subProgram.size() <= 100))
+        && (!('status' in data) || (data.status is string && data.status.size() <= 50))
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000))
+        && (!('paymentRef' in data) || (data.paymentRef is string && data.paymentRef.size() <= 100))
+        && (!('paymentAmount' in data) || (data.paymentAmount is int || data.paymentAmount is float))
+        && (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50));
+    }
+
+    // Helper: Validation fields for AdvisorRequest
+    function isValidAdvisorRequest(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50
+        && (!('email' in data) || (data.email is string && data.email.size() <= 100))
+        && (!('timeFrame' in data) || (data.timeFrame is string && data.timeFrame.size() <= 50))
+        && (!('message' in data) || (data.message is string && data.message.size() <= 1000))
+        && (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50));
+    }
+
+    // Collection: Scholar enrollment applications
+    match /applications/{applicationId} {
+      // Allow reading and listing of applications for live feed
+      allow get: if isValidId(applicationId);
+      allow list: if true;
+      
+      // Allow creation and admin modification/deletion of applications
+      allow create: if isValidId(applicationId) && isValidApplication(request.resource.data);
+      allow update, delete: if true; // Fully manageable by administration portal
+    }
+
+    // Collection: Advisor consultant requests
+    match /advisors/{advisorRequestId} {
+      allow create: if isValidId(advisorRequestId) && isValidAdvisorRequest(request.resource.data);
+      allow get, list, update, delete: if true; // Fully manageable by administration portal
+    }
+  }
+}
