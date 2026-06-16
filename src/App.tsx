@@ -1897,7 +1897,7 @@ export default function App() {
           {/* Logo Inspired design: Clean brand logo image, paired with modern font */}
           <div id="nav-brand-logo" className="flex items-center gap-2.5 cursor-pointer group" onClick={() => scrollToView("hero-banner")}>
             <div className="w-9 h-9 rounded-full overflow-hidden border border-neutral-200/80 bg-white flex items-center justify-center shadow-xs transition-transform duration-300 group-hover:scale-105">
-              <img src="/assets/images/univlove-logo.jpg" alt="Univlove Logo" className="w-full h-full object-cover" />
+              <img src="/assets/images/univlove-logo.png" alt="Univlove Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-xl font-bold text-neutral-900 tracking-tight font-sans flex items-center gap-1.5 select-none font-sans">
               Univlove
@@ -4015,7 +4015,7 @@ export default function App() {
             <div className="md:col-span-4 text-left flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white rounded-xl overflow-hidden p-[2px] flex items-center justify-center border border-white/15">
-                  <img src="/assets/images/univlove-logo.jpg" alt="Univlove Logo" className="w-full h-full object-cover rounded-lg" />
+                  <img src="/assets/images/univlove-logo.png" alt="Univlove Logo" className="w-full h-full object-cover rounded-lg" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xl font-black tracking-widest text-white font-sans">UNIVLOVE</span>
