@@ -195,7 +195,7 @@ export default function App() {
   // Dynamic Settings and Admin Portal State
   const [settings, setSettings] = useState<any>({
     paymentAmount: 10000,
-    paystackPublicKey: "pk_test_b9693c95959a7d36e5e58358466117694de2afbb",
+    paystackPublicKey: "pk_live_42a1191b8c074eab66c38cac26c3877970a0060a",
     admissionStatus: "Open",
     announcementText: "🌟 SPECIAL ADMISSION WINDOW OPEN: ENROLL NOW WITH 100% SECURE INTEGRATION AND AI PATHWAY ADVISORY.",
     demoMode: true,
@@ -3222,14 +3222,6 @@ export default function App() {
                         )}
                       </button>
 
-                      <button 
-                        onClick={simulateFallbackPayment}
-                        disabled={isPaying || submittingApp}
-                        className="w-full py-3 bg-gradient-to-r from-neutral-950 to-neutral-850 hover:from-black hover:to-neutral-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-70 shadow-md hover:shadow-lg"
-                      >
-                        <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span>Simulate Sandbox Success (No Card)</span>
-                      </button>
 
                       <button 
                         onClick={() => {
