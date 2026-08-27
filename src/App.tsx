@@ -3291,7 +3291,7 @@ export default function App() {
                             </div>
                             {chatStep === 0 && (
                               <div className="ml-11 flex items-center gap-2">
-                                <input type="text" autoFocus placeholder="Type your full name..." value={fullName} onChange={e => setFullName(e.target.value)} onKeyDown={e => e.key === 'Enter' && fullName.trim() && setChatStep(1)} className="flex-1 p-3.5 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-[#138A36] shadow-sm text-neutral-900" />
+                                <input type="text" placeholder="Type your full name..." value={fullName} onChange={e => setFullName(e.target.value)} onKeyDown={e => e.key === 'Enter' && fullName.trim() && setChatStep(1)} className="flex-1 p-3.5 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-[#138A36] shadow-sm text-neutral-900" />
                                 <button onClick={() => fullName.trim() && setChatStep(1)} className={"p-3.5 rounded-xl transition-colors " + (fullName.trim() ? "bg-[#138A36] text-white shadow-md hover:bg-[#0f732d]" : "bg-neutral-200 text-neutral-400 cursor-not-allowed")}><Send className="w-4 h-4" /></button>
                               </div>
                             )}
