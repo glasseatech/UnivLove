@@ -177,7 +177,7 @@ interface GlobalSettings {
 
 const DEFAULT_SETTINGS: GlobalSettings = {
   paymentAmount: 10000,
-  paystackPublicKey: "pk_test_b9693c95959a7d36e5e58358466117694de2afbb",
+  paystackPublicKey: process.env.VITE_PAYSTACK_PUBLIC_KEY || "",
   admissionStatus: "Open",
   announcementText: "🌟 SPECIAL ADMISSION WINDOW OPEN: ENROLL NOW WITH 100% SECURE INTEGRATION AND AI PATHWAY ADVISORY.",
   demoMode: true,

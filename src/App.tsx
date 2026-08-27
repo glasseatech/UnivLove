@@ -35,6 +35,7 @@ import {
   Terminal, 
   HelpCircle,
   Menu,
+  Bot,
   X,
   ArrowUpRight,
   Twitter,
@@ -133,6 +134,130 @@ const scholarTestimonials = [
   }
 ];
 
+export const pathwaysConfig = [
+  {
+    id: 'jupeb-pre-degree',
+    title: '🎓 JUPEB & PRE-DEGREE PATHWAYS',
+    icon: GraduationCap,
+    description: 'Direct-entry and pre-university preparation pathways.',
+    tuitionLogic: (sub) => (sub && sub.includes('Science')) ? 175000 : 150000,
+    compulsoryFees: [],
+    subCategories: [
+      'JUPEB – Science', 'JUPEB – Arts', 'JUPEB – Commercial',
+      'Pre-Degree – Science', 'Pre-Degree – Arts', 'Pre-Degree – Commercial'
+    ],
+    color: '#176f33'
+  },
+  {
+    id: 'pre-nursing',
+    title: '🩺 PRE-NURSING PATHWAY',
+    icon: Activity,
+    description: 'Preparation and guidance for students aspiring to pursue Nursing and related health programmes.',
+    tuitionLogic: () => 150000,
+    compulsoryFees: [],
+    subCategories: [
+      'Pre-Nursing', 'Nursing School Preparation', 'University Nursing / B.NSc Preparation', 'Nursing & Related Health-Care Admission Preparation'
+    ],
+    color: '#0ea5e9'
+  },
+  {
+    id: 'pre-health',
+    title: '⚕️ PRE-HEALTH & MEDICAL SCIENCES',
+    icon: Shield,
+    description: 'Academic preparation for intended health and medical science programmes.',
+    tuitionLogic: () => 175000,
+    compulsoryFees: [],
+    subCategories: [
+      'Medicine & Surgery', 'Medical Laboratory Science', 'Pharmacy', 'Physiotherapy', 'Radiography', 'Anatomy', 'Physiology', 'Public Health', 'Health Education', 'Other Health & Medical Science programmes'
+    ],
+    color: '#ef4444'
+  },
+  {
+    id: 'pre-engineering',
+    title: '⚙️ PRE-ENGINEERING',
+    icon: Settings,
+    description: 'Academic preparation for students intending to study Engineering.',
+    tuitionLogic: () => 175000,
+    compulsoryFees: [],
+    subCategories: [
+      'Civil Engineering', 'Mechanical Engineering', 'Electrical Engineering', 'Electronic Engineering', 'Computer Engineering', 'Chemical Engineering', 'Agricultural Engineering', 'Mechatronics Engineering', 'Petroleum Engineering', 'Structural Engineering', 'Environmental Engineering', 'Other Engineering programmes'
+    ],
+    color: '#f59e0b'
+  },
+  {
+    id: 'pre-law',
+    title: '⚖️ PRE-LAW',
+    icon: BookOpen,
+    description: 'Academic preparation and admission guidance for students aspiring to study Law.',
+    tuitionLogic: () => 150000,
+    compulsoryFees: [],
+    subCategories: [
+      'Law / LL.B', 'Legal Studies', 'Law Admission Preparation', 'Related Legal & Justice Studies'
+    ],
+    color: '#6366f1'
+  },
+  {
+    id: 'pre-social-sciences',
+    title: '📊 PRE-SOCIAL SCIENCES',
+    icon: Users,
+    description: 'Preparation for business, management and social science pathways.',
+    tuitionLogic: () => 150000,
+    compulsoryFees: [],
+    subCategories: [
+      'Accounting', 'Economics', 'Banking & Finance', 'Business Administration', 'Business Management', 'Marketing', 'Political Science', 'Public Administration', 'International Relations', 'Mass Communication', 'Psychology', 'Sociology', 'Criminology & Security Studies', 'Insurance', 'Social Work', 'Development Studies', 'Geography', 'Statistics', 'Management', 'Industrial Relations & Personnel Management', 'Transport Management', 'Actuarial Science', 'Cooperative Economics & Management', 'Entrepreneurship', 'Econometrics', 'Other Social Science programmes', 'Other'
+    ],
+    color: '#10b981'
+  },
+  {
+    id: 'pre-arts',
+    title: '🎨 PRE-ARTS & HUMANITIES',
+    icon: FileText,
+    description: 'Foundation for literature, history, and creative arts.',
+    tuitionLogic: () => 150000,
+    compulsoryFees: [],
+    subCategories: [
+      'English & Literary Studies', 'English Language', 'Literature', 'History', 'Philosophy', 'Religious Studies', 'Linguistics', 'Foreign Languages', 'Theatre & Performing Arts', 'Music', 'Fine Arts', 'Creative Arts', 'Archaeology', 'Cultural Studies', 'Languages & Communication', 'Other Arts & Humanities programmes'
+    ],
+    color: '#ec4899'
+  },
+  {
+    id: 'pre-ict',
+    title: '💻 PRE-ICT, COMPUTING & TECHNOLOGY',
+    icon: Laptop,
+    description: 'Preparation for the technology and software engineering space.',
+    tuitionLogic: () => 175000,
+    compulsoryFees: [{ name: 'Technology Classes', amount: 30000 }],
+    subCategories: [
+      'Computer Science', 'Software Engineering', 'Cybersecurity', 'Information Technology', 'Information Systems', 'Computer Engineering', 'Data Science', 'Artificial Intelligence', 'Cloud Computing', 'Networking', 'Web Development', 'Mobile App Development', 'Database Management', 'Digital Technology', 'Other Computing & Technology programmes'
+    ],
+    color: '#8c4eae'
+  },
+  {
+    id: 'o-level',
+    title: '📚 O-LEVEL / FOUNDATION PREPARATION',
+    icon: Award,
+    description: 'Academic foundation for younger students and O-Level exam preparation.',
+    tuitionLogic: () => 0, // Default to 0 unless university pathway is picked
+    compulsoryFees: [],
+    subCategories: [
+      'SS2 → SS3 Academic Preparation', 'O-Level Preparation', 'WAEC Preparation', 'NECO Preparation', 'NABTEB Preparation', 'Awaiting Results / Academic Improvement'
+    ],
+    color: '#eab308'
+  },
+  {
+    id: 'international',
+    title: '🌍 INTERNATIONAL / STUDY ABROAD PREPARATION',
+    icon: Globe,
+    description: 'Academic and admission guidance for studying globally.',
+    tuitionLogic: () => 150000,
+    compulsoryFees: [],
+    subCategories: [
+      'International University Preparation', 'International Foundation Preparation', 'Study Abroad Academic Guidance', 'International Admission Guidance'
+    ],
+    color: '#06b6d4'
+  }
+];
+
 export default function App() {
   // Scrolling parallax hook setup
   const showcaseRef = React.useRef<HTMLElement>(null);
@@ -149,25 +274,188 @@ export default function App() {
 
   // Navigation & Page state
   const [activeTab, setActiveTab] = useState<'all' | 'prevarsity' | 'tech' | 'vocational' | 'study-abroad' | 'sports' | 'accommodation' | 'teachers'>('all');
-  const [activeChapter, setActiveChapter] = useState<'academic' | 'tech' | 'vocational'>('academic');
+  const [activeChapter, setActiveChapter] = useState<string | null>(null);
+  const [selectedPathwayId, setSelectedPathwayId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Simulated live admissions from backend server state
   const [liveApplications, setLiveApplications] = useState<ApplicationItem[]>([]);
   const [appsLoading, setAppsLoading] = useState(false);
 
-  // Enroll form state
+  // Enroll form state – Personal
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedProgram, setSelectedProgram] = useState('JUPEB (Prevarsity Direct Entry)');
-  const [selectedTrack, setSelectedTrack] = useState('Software Development & Cyber Security');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [stateLoc, setStateLoc] = useState('');
+  const [country, setCountry] = useState('Nigeria');
+  // Academic Info
+  const [currentLevel, setCurrentLevel] = useState('');
+  const [schoolAttended, setSchoolAttended] = useState('');
+  const [oLevelStatus, setOLevelStatus] = useState('');
+  const [sittings, setSittings] = useState('1');
+  // Pathway info
+  const [selectedProgram, setSelectedProgram] = useState('');
+  const [selectedTrack, setSelectedTrack] = useState('');
+  const [intendedUniversity, setIntendedUniversity] = useState('');
+  const [intendedDegree, setIntendedDegree] = useState('');
+  const [alternativeCourse, setAlternativeCourse] = useState('');
+  const [jambStatus, setJambStatus] = useState('');
+  // Parent/Guardian Info
+  const [parentName, setParentName] = useState('');
+  const [parentRelationship, setParentRelationship] = useState('');
+  const [parentPhone, setParentPhone] = useState('');
+  const [parentEmail, setParentEmail] = useState('');
+  // Add-ons
+  const [hostelRequired, setHostelRequired] = useState(false);
+  const [musicClasses, setMusicClasses] = useState(false);
+  const [vocationalSkills, setVocationalSkills] = useState(false);
+  const [sportsAcademy, setSportsAcademy] = useState(false);
   const [candidateNotes, setCandidateNotes] = useState('');
+  const [chatStep, setChatStep] = useState(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [submittingApp, setSubmittingApp] = useState(false);
   const [showPaymentGateway, setShowPaymentGateway] = useState(false);
   const [pendingPayload, setPendingPayload] = useState<any>(null);
   const [isPaying, setIsPaying] = useState(false);
+  const [selectedFeesToPay, setSelectedFeesToPay] = useState<Record<string, boolean>>({
+    registration: true,
+    acceptance: true,
+    tuition: false,
+    hostel: false,
+    music: false,
+    vocational: false,
+    sports: false
+  });
+  
+  const toggleFee = (feeKey: string) => {
+    setSelectedFeesToPay(prev => ({
+      ...prev,
+      [feeKey]: !prev[feeKey]
+    }));
+  };
+
+  const calculateCurrentPaymentAmount = () => {
+    if (!pendingPayload) return 0;
+    let total = 0;
+    if (selectedFeesToPay.registration) total += 15000;
+    if (selectedFeesToPay.acceptance) total += 10000;
+    if (selectedFeesToPay.tuition) total += (pendingPayload.totalFees - 25000 - (pendingPayload.hostelRequired ? 100000 : 0) - (pendingPayload.musicClasses ? 30000 : 0) - (pendingPayload.vocationalSkills ? 30000 : 0) - (pendingPayload.sportsAcademy ? 30000 : 0));
+    if (selectedFeesToPay.hostel && pendingPayload.hostelRequired) total += 100000;
+    if (selectedFeesToPay.music && pendingPayload.musicClasses) total += 30000;
+    if (selectedFeesToPay.vocational && pendingPayload.vocationalSkills) total += 30000;
+    if (selectedFeesToPay.sports && pendingPayload.sportsAcademy) total += 30000;
+    return total;
+  };
+
+  // Fee helpers
+  const getPathwayTuition = () => {
+    const pw = pathwaysConfig.find(p => p.title === selectedProgram);
+    if (!pw) return 0;
+    return pw.tuitionLogic(selectedTrack);
+  };
+  const getCompulsoryFees = () => {
+    const pw = pathwaysConfig.find(p => p.title === selectedProgram);
+    if (!pw) return 0;
+    // @ts-ignore
+    return pw.compulsoryFees.reduce((sum, f) => sum + f.amount, 0);
+  };
+  const calculateTotalFees = () => {
+    if (!selectedProgram) return 0;
+    let total = 15000 + 10000;
+    total += getPathwayTuition();
+    total += getCompulsoryFees();
+    if (hostelRequired) total += 100000;
+    if (musicClasses) total += 30000;
+    if (vocationalSkills) total += 30000;
+    if (sportsAcademy) total += 30000;
+    return total;
+  };
+  // Pathway selection helper
+  const selectPathway = (categoryTitle: string, subCategory: string) => {
+    setSelectedProgram(categoryTitle);
+    setSelectedTrack(subCategory);
+    setTimeout(() => {
+      const el = document.getElementById('admissions-portal');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  // localStorage FORM CACHE — restore on mount, save on change
+  // ─────────────────────────────────────────────────────────────
+  const FORM_CACHE_KEY = 'univlove_application_draft';
+
+  // 1. Restore from cache on mount
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(FORM_CACHE_KEY);
+      if (!cached) return;
+      const d = JSON.parse(cached);
+      if (d.fullName) setFullName(d.fullName);
+      if (d.email) setEmail(d.email);
+      if (d.phone) setPhone(d.phone);
+      if (d.dob) setDob(d.dob);
+      if (d.gender) setGender(d.gender);
+      if (d.whatsapp) setWhatsapp(d.whatsapp);
+      if (d.address) setAddress(d.address);
+      if (d.city) setCity(d.city);
+      if (d.stateLoc) setStateLoc(d.stateLoc);
+      if (d.country) setCountry(d.country);
+      if (d.currentLevel) setCurrentLevel(d.currentLevel);
+      if (d.schoolAttended) setSchoolAttended(d.schoolAttended);
+      if (d.oLevelStatus) setOLevelStatus(d.oLevelStatus);
+      if (d.sittings) setSittings(d.sittings);
+      if (d.selectedProgram) setSelectedProgram(d.selectedProgram);
+      if (d.selectedTrack) setSelectedTrack(d.selectedTrack);
+      if (d.intendedUniversity) setIntendedUniversity(d.intendedUniversity);
+      if (d.intendedDegree) setIntendedDegree(d.intendedDegree);
+      if (d.alternativeCourse) setAlternativeCourse(d.alternativeCourse);
+      if (d.jambStatus) setJambStatus(d.jambStatus);
+      if (d.parentName) setParentName(d.parentName);
+      if (d.parentRelationship) setParentRelationship(d.parentRelationship);
+      if (d.parentPhone) setParentPhone(d.parentPhone);
+      if (d.parentEmail) setParentEmail(d.parentEmail);
+      if (typeof d.hostelRequired === 'boolean') setHostelRequired(d.hostelRequired);
+      if (typeof d.musicClasses === 'boolean') setMusicClasses(d.musicClasses);
+      if (typeof d.vocationalSkills === 'boolean') setVocationalSkills(d.vocationalSkills);
+      if (typeof d.sportsAcademy === 'boolean') setSportsAcademy(d.sportsAcademy);
+      if (d.candidateNotes) setCandidateNotes(d.candidateNotes);
+      if (typeof d.chatStep === 'number') setChatStep(d.chatStep);
+    } catch (err) {
+      console.warn('Failed to restore form cache:', err);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 2. Save to cache whenever any field changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(FORM_CACHE_KEY, JSON.stringify({
+        fullName, email, phone, dob, gender, whatsapp, address, city, stateLoc, country,
+        currentLevel, schoolAttended, oLevelStatus, sittings,
+        selectedProgram, selectedTrack,
+        intendedUniversity, intendedDegree, alternativeCourse, jambStatus,
+        parentName, parentRelationship, parentPhone, parentEmail,
+        hostelRequired, musicClasses, vocationalSkills, sportsAcademy,
+        candidateNotes, chatStep
+      }));
+    } catch (err) {
+      console.warn('Failed to save form cache:', err);
+    }
+  }, [
+    fullName, email, phone, dob, gender, whatsapp, address, city, stateLoc, country,
+    currentLevel, schoolAttended, oLevelStatus, sittings,
+    selectedProgram, selectedTrack,
+    intendedUniversity, intendedDegree, alternativeCourse, jambStatus,
+    parentName, parentRelationship, parentPhone, parentEmail,
+    hostelRequired, musicClasses, vocationalSkills, sportsAcademy,
+    candidateNotes, chatStep
+  ]);
 
   // Contact advisor form state
   const [advisorName, setAdvisorName] = useState('');
@@ -622,6 +910,20 @@ export default function App() {
     };
     window.addEventListener('hashchange', handleHashChange);
     handleHashChange();
+    // Deep-link: ?pathway=pre-nursing
+    const params = new URLSearchParams(window.location.search);
+    const pathwayParam = params.get('pathway');
+    if (pathwayParam) {
+      const found = pathwaysConfig.find(p => p.id === pathwayParam);
+      if (found) {
+        setSelectedProgram(found.title);
+        setSelectedTrack(found.subCategories[0] || '');
+        setTimeout(() => {
+          const el = document.getElementById('admissions-portal');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 800);
+      }
+    }
     
     return () => {
       clearInterval(interval);
@@ -635,12 +937,23 @@ export default function App() {
     if (!fullName || !email || !phone) return;
     
     setPendingPayload({
-      fullName,
-      email,
-      phone,
-      program: selectedProgram,
-      track: selectedTrack,
-      notes: candidateNotes
+      fullName, email, phone, dob, gender, whatsapp, address, city, stateLoc, country,
+      currentLevel, schoolAttended, oLevelStatus, sittings,
+      program: selectedProgram, track: selectedTrack,
+      intendedUniversity, intendedDegree, alternativeCourse, jambStatus,
+      parentName, parentRelationship, parentPhone, parentEmail,
+      hostelRequired, musicClasses, vocationalSkills, sportsAcademy,
+      notes: candidateNotes,
+      totalFees: calculateTotalFees()
+    });
+    setSelectedFeesToPay({
+      registration: true,
+      acceptance: true,
+      tuition: false,
+      hostel: false,
+      music: false,
+      vocational: false,
+      sports: false
     });
     setShowPaymentGateway(true);
   };
@@ -665,7 +978,7 @@ export default function App() {
         popup.newTransaction({
           key: paystackPublicKey,
           email: pendingPayload.email,
-          amount: (settings.paymentAmount || 10000) * 100, // Dynamic fee from settings in kobo
+          amount: calculateCurrentPaymentAmount() * 100,
           currency: "NGN",
           ref: reference,
           onSuccess: function (response: any) {
@@ -681,7 +994,7 @@ export default function App() {
         const handler = PaystackPop.setup({
           key: paystackPublicKey,
           email: pendingPayload.email,
-          amount: (settings.paymentAmount || 10000) * 100,
+          amount: calculateCurrentPaymentAmount() * 100,
           currency: "NGN",
           ref: reference,
           callback: function (response: any) {
@@ -719,8 +1032,8 @@ export default function App() {
         body: JSON.stringify({
           ...pendingPayload,
           paymentRef: reference,
-          paymentAmount: settings.paymentAmount || 10000,
-          paymentStatus: "Paid"
+          paymentAmount: calculateCurrentPaymentAmount(),
+          paymentStatus: calculateCurrentPaymentAmount() === pendingPayload.totalFees ? "Paid Full" : "Paid Partial"
         })
       });
       const data = await response.json();
@@ -728,8 +1041,9 @@ export default function App() {
         setFormSubmitted(true);
         setShowPaymentGateway(false);
         setPendingPayload(null);
-        fetchApplications(); // Refresh registry list instantly
-        
+        fetchApplications();
+        // Clear the saved draft from localStorage after successful payment
+        try { localStorage.removeItem(FORM_CACHE_KEY); } catch(_) {}
         // Clear inputs
         setFullName("");
         setEmail("");
@@ -2405,464 +2719,60 @@ export default function App() {
             </p>
           </div>
 
-          {/* Epic Chapter Selector Tabs */}
-          <div className="flex flex-col sm:flex-row justify-center gap-2 max-w-2xl mx-auto w-full p-1.5 bg-neutral-100 rounded-full border border-neutral-200/60 shadow-2xs">
-            <button
-              onClick={() => setActiveChapter('academic')}
-              className={`px-6 py-3 rounded-full text-xs font-bold transition-all duration-300 tracking-tight flex items-center justify-center gap-2 cursor-pointer grow ${
-                activeChapter === 'academic' 
-                  ? 'text-white shadow-xs' 
-                  : 'text-neutral-500 hover:text-neutral-800 hover:bg-neutral-200/50'
-              }`}
-              style={activeChapter === 'academic' ? { backgroundColor: '#176f33' } : {}}
-            >
-              <GraduationCap className="w-4 h-4" />
-              <span>Chapter I: Academic Uplift</span>
-            </button>
-            
-            <button
-              onClick={() => setActiveChapter('tech')}
-              className={`px-6 py-3 rounded-full text-xs font-bold transition-all duration-300 tracking-tight flex items-center justify-center gap-2 cursor-pointer grow ${
-                activeChapter === 'tech' 
-                  ? 'text-white shadow-xs' 
-                  : 'text-neutral-500 hover:text-neutral-800 hover:bg-neutral-200/50'
-              }`}
-              style={activeChapter === 'tech' ? { backgroundColor: '#8c4eae' } : {}}
-            >
-              <Cpu className="w-4 h-4" />
-              <span>Chapter II: Tech & AI</span>
-            </button>
+                    {/* NEW Pathways Selector Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto w-full mb-12">
+            {pathwaysConfig.map((pathway) => {
+              const Icon = pathway.icon;
+              const isActive = selectedPathwayId === pathway.id;
 
-            <button
-              onClick={() => setActiveChapter('vocational')}
-              className={`px-6 py-3 rounded-full text-xs font-bold transition-all duration-300 tracking-tight flex items-center justify-center gap-2 cursor-pointer grow ${
-                activeChapter === 'vocational' 
-                  ? 'bg-neutral-900 text-white shadow-xs' 
-                  : 'text-neutral-500 hover:text-neutral-800 hover:bg-neutral-200/50'
-              }`}
-            >
-              <Activity className="w-4 h-4" />
-              <span>Chapter III: Craft & Sports</span>
-            </button>
+              return (
+                <div key={pathway.id} className="flex flex-col gap-3">
+                  <div 
+                    onClick={() => setSelectedPathwayId(isActive ? null : pathway.id)}
+                    className={`rounded-2xl p-6 border transition-all duration-300 cursor-pointer flex flex-col items-start gap-4 hover:shadow-lg ${isActive ? 'bg-neutral-50 shadow-md ring-2 ring-neutral-200 border-transparent' : 'bg-white border-neutral-200/80 hover:border-neutral-400'}`}
+                    style={{ borderLeftColor: isActive ? pathway.color : undefined, borderLeftWidth: isActive ? '4px' : '1px' }}
+                  >
+                    <div className="p-3 rounded-xl" style={{ backgroundColor: pathway.color + "18", color: pathway.color }}>
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-neutral-900 text-sm">{pathway.title}</h3>
+                      <p className="text-xs text-neutral-500 mt-2">{pathway.description}</p>
+                    </div>
+                    <div className="mt-2 text-[10px] font-bold tracking-wider uppercase flex items-center justify-between w-full" style={{ color: pathway.color }}>
+                      {isActive ? 'Hide Options ✕' : 'Explore Pathway ➔'}
+                    </div>
+                  </div>
+
+                  {/* Sub-categories dropdown animation */}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0, y: -10 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -10 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="flex flex-col gap-2 pl-4 border-l-2 border-neutral-100 ml-4 mb-4">
+                          {pathway.subCategories.map(sub => (
+                            <button
+                              key={sub}
+                              onClick={() => { selectPathway(pathway.title, sub); setSelectedPathwayId(null); }}
+                              className="text-left py-3 px-4 rounded-lg text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors flex items-center justify-between group bg-white border border-neutral-100 shadow-xs"
+                            >
+                              <span>{sub}</span>
+                              <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: pathway.color }} />
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
           </div>
-
-          {/* Unified Animated Interactive Chapters */}
-          <div className="mt-4 text-left">
-            <AnimatePresence mode="wait">
-              {activeChapter === 'academic' && (
-                <motion.div
-                  key="academic-chap"
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch"
-                >
-                  {/* Left Storyteller Panel */}
-                  <div className="lg:col-span-7 flex flex-col gap-6">
-                    
-                    {/* Architectural Blueprint Cards (Program details) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {academicTabs.map((tab, idx) => (
-                        <div 
-                          key={idx}
-                          onClick={() => {
-                            setActiveAcademicTab(idx);
-                            if (window.innerWidth < 1024) {
-                              setIsMobileModalOpen(true);
-                            }
-                          }}
-                          className={`rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between group cursor-pointer relative overflow-hidden select-none ${
-                            activeAcademicTab === idx
-                              ? 'bg-neutral-50/80 border-neutral-900 shadow-sm ring-1 ring-neutral-900/10'
-                              : 'bg-white border-neutral-200/85 hover:border-neutral-450 hover:shadow-2xs'
-                          } ${tab.gridSpan || ''}`}
-                        >
-                          {/* Selected Left Colored Accent Ribbon */}
-                          {activeAcademicTab === idx && (
-                            <div 
-                              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" 
-                              style={{ backgroundColor: tab.accentColor }} 
-                            />
-                          )}
-
-                          <div className="flex flex-col gap-2">
-                            <span 
-                              className="text-[10px] font-mono font-extrabold uppercase tracking-wider"
-                              style={{ color: tab.accentColor }}
-                            >
-                              {tab.tag}
-                            </span>
-                            <h3 className="text-base font-extrabold text-neutral-900 group-hover:text-black">
-                              {tab.title}
-                            </h3>
-                            <p className="text-xs text-neutral-500 leading-relaxed">
-                              {tab.desc}
-                            </p>
-                          </div>
-
-                          <div className="mt-4 flex items-center justify-between">
-                            <span 
-                              className="text-xs font-bold transition-colors"
-                              style={{ color: activeAcademicTab === idx ? tab.accentColor : '#9CA3AF' }}
-                            >
-                              {activeAcademicTab === idx ? "Viewing Details ➔" : "Read Details ➔"}
-                            </span>
-                            {activeAcademicTab === idx && (
-                              <div 
-                                className="w-1.5 h-1.5 rounded-full animate-ping"
-                                style={{ backgroundColor: tab.accentColor }}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                  </div>
-
-                  {/* Right Cinematic Display Card */}
-                  <div id="academic-details-panel" className="hidden lg:flex lg:col-span-5 relative flex-col justify-between bg-white rounded-3xl border border-neutral-200/90 p-6 shadow-sm overflow-hidden leading-normal">
-                    
-                    <div>
-
-
-                      {/* Expanded Narrative */}
-                      <div className="mt-5 flex flex-col gap-2">
-                        <span className="text-[10px] font-mono tracking-widest text-[#B4ACF9] uppercase font-bold">
-                          Detailed Specifications
-                        </span>
-                        <h4 className="text-lg font-black text-neutral-900 leading-tight">
-                          {academicTabs[activeAcademicTab].title}
-                        </h4>
-                        <p className="text-xs text-neutral-600 leading-relaxed">
-                          {academicTabs[activeAcademicTab].detailed}
-                        </p>
-                      </div>
-
-                      {/* Stats details cluster */}
-                      <div className="flex flex-col gap-4 mt-5">
-                        <div className="flex justify-between items-center border-b border-neutral-100 pb-3">
-                          <span className="text-xs font-semibold text-neutral-500">Primary Outcome</span>
-                          <span className="text-xs font-bold text-neutral-900 text-right">
-                            {academicTabs[activeAcademicTab].outcome}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center border-b border-neutral-100 pb-3">
-                          <span className="text-xs font-semibold text-neutral-500">Validation Standard</span>
-                          <span className="text-xs font-bold text-neutral-900 text-right">
-                            {academicTabs[activeAcademicTab].rate}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-semibold text-neutral-500">Program Format</span>
-                          <span className="text-xs font-mono font-bold text-right" style={{ color: academicTabs[activeAcademicTab].accentColor }}>
-                            {academicTabs[activeAcademicTab].type}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Cinematic overlay card */}
-                    <div className="mt-6 p-4 rounded-2xl border text-center flex flex-col items-center gap-2 bg-neutral-50/50 border-neutral-100">
-                      <p className="text-[11px] font-bold text-neutral-700 tracking-tight uppercase">
-                        Streamline your academic transition online
-                      </p>
-                      <button 
-                        onClick={() => {
-                          setSelectedProgram(academicTabs[activeAcademicTab].programName);
-                          setSelectedTrack(academicTabs[activeAcademicTab].trackName);
-                          scrollToView("admissions-portal");
-                        }}
-                        className="w-full py-3.5 text-white rounded-xl text-xs font-bold tracking-tight uppercase transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                        style={{ background: `linear-gradient(135deg, ${academicTabs[activeAcademicTab].accentColor}, ${academicTabs[activeAcademicTab].accentColor}cc)` }}
-                      >
-                        <span>{academicTabs[activeAcademicTab].buttonText.replace(" ➔", "")}</span>
-                        <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                      </button>
-                    </div>
-
-                  </div>
-                </motion.div>
-              )}
-
-              {activeChapter === 'tech' && (
-                <motion.div
-                  key="tech-chap"
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch"
-                >
-                  {/* Left Storyteller Panel */}
-                  <div className="lg:col-span-7 flex flex-col gap-6">
-                    
-                    {/* Architectural Blueprint Cards (Program details) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {techTabs.map((tab, idx) => (
-                        <div 
-                          key={idx}
-                          onClick={() => {
-                            setActiveTechTab(idx);
-                            if (window.innerWidth < 1024) {
-                              setIsMobileModalOpen(true);
-                            }
-                          }}
-                          className={`rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between group cursor-pointer relative overflow-hidden select-none ${
-                            activeTechTab === idx
-                              ? 'bg-neutral-50/80 border-neutral-900 shadow-sm ring-1 ring-neutral-900/10'
-                              : 'bg-white border-neutral-200/85 hover:border-neutral-450 hover:shadow-2xs'
-                          }`}
-                        >
-                          {/* Selected Left Colored Accent Ribbon */}
-                          {activeTechTab === idx && (
-                            <div 
-                              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" 
-                              style={{ backgroundColor: tab.accentColor }} 
-                            />
-                          )}
-
-                          <div className="flex flex-col gap-2">
-                            <span 
-                              className="text-[10px] font-mono font-extrabold uppercase tracking-wider"
-                              style={{ color: tab.accentColor }}
-                            >
-                              {tab.tag}
-                            </span>
-                            <h3 className="text-base font-extrabold text-neutral-900 group-hover:text-black">
-                              {tab.title}
-                            </h3>
-                            <p className="text-xs text-neutral-500 leading-relaxed">
-                              {tab.desc}
-                            </p>
-                          </div>
-
-                          <div className="mt-4 flex items-center justify-between">
-                            <span 
-                              className="text-xs font-bold transition-colors"
-                              style={{ color: activeTechTab === idx ? tab.accentColor : '#9CA3AF' }}
-                            >
-                              {activeTechTab === idx ? "Viewing Details ➔" : "Read Details ➔"}
-                            </span>
-                            {activeTechTab === idx && (
-                              <div 
-                                className="w-1.5 h-1.5 rounded-full animate-ping"
-                                style={{ backgroundColor: tab.accentColor }}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                  </div>
-
-                  {/* Right Cinematic Display Card */}
-                  <div id="tech-details-panel" className="hidden lg:flex lg:col-span-5 relative flex-col justify-between bg-white rounded-3xl border border-neutral-200/90 p-6 shadow-xs overflow-hidden leading-normal">
-                    
-                    <div>
-
-
-                      {/* Expanded Narrative */}
-                      <div className="mt-5 flex flex-col gap-2">
-                        <span className="text-[10px] font-mono tracking-widest text-[#138A36] uppercase font-bold">
-                          Detailed Specifications
-                        </span>
-                        <h4 className="text-lg font-black text-neutral-900 leading-tight">
-                          {techTabs[activeTechTab].title}
-                        </h4>
-                        <p className="text-xs text-neutral-600 leading-relaxed">
-                          {techTabs[activeTechTab].detailed}
-                        </p>
-                      </div>
-
-                      {/* Stats details cluster */}
-                      <div className="flex flex-col gap-4 mt-5">
-                        <div className="flex justify-between items-center border-b border-neutral-100 pb-3">
-                          <span className="text-xs font-semibold text-neutral-500">Core Qualification</span>
-                          <span className="text-xs font-bold text-neutral-900 text-right">
-                            {techTabs[activeTechTab].outcome}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center border-b border-neutral-100 pb-3">
-                          <span className="text-xs font-semibold text-neutral-500">Industry Standard</span>
-                          <span className="text-xs font-bold text-neutral-900 text-right">
-                            {techTabs[activeTechTab].rate}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-semibold text-neutral-500">Our Placement Track</span>
-                          <span className="text-xs font-mono font-bold text-right" style={{ color: techTabs[activeTechTab].accentColor }}>
-                            {techTabs[activeTechTab].type}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Cinematic overlay card */}
-                    <div className="mt-6 p-4 rounded-2xl border text-center flex flex-col items-center gap-2 bg-neutral-50/50 border-neutral-100">
-                      <p className="text-[11px] font-bold text-neutral-700 tracking-tight uppercase">
-                        Join the high availability digital talent cohort
-                      </p>
-                      <button 
-                        onClick={() => {
-                          setSelectedProgram(techTabs[activeTechTab].programName);
-                          setSelectedTrack(techTabs[activeTechTab].trackName);
-                          scrollToView("admissions-portal");
-                        }}
-                        className="w-full py-3.5 text-white rounded-xl text-xs font-bold tracking-tight uppercase transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                        style={{ background: `linear-gradient(135deg, ${techTabs[activeTechTab].accentColor}, ${techTabs[activeTechTab].accentColor}cc)` }}
-                      >
-                        <span>{techTabs[activeTechTab].buttonText.replace(" ➔", "")}</span>
-                        <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                      </button>
-                    </div>
-
-                  </div>
-                </motion.div>
-              )}
-
-              {activeChapter === 'vocational' && (
-                <motion.div
-                  key="vocational-chap"
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch"
-                >
-                  {/* Left Storyteller Panel */}
-                  <div className="lg:col-span-7 flex flex-col gap-6">
-                    
-                    {/* Architectural Blueprint Cards (Program details) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {vocationalTabs.map((tab, idx) => (
-                        <div 
-                          key={idx}
-                          onClick={() => {
-                            setActiveVocationalTab(idx);
-                            if (window.innerWidth < 1024) {
-                              setIsMobileModalOpen(true);
-                            }
-                          }}
-                          className={`rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between group cursor-pointer relative overflow-hidden select-none ${
-                            activeVocationalTab === idx
-                              ? 'bg-neutral-50/80 border-neutral-900 shadow-sm ring-1 ring-neutral-900/10'
-                              : 'bg-white border-neutral-200/85 hover:border-neutral-450 hover:shadow-2xs'
-                          }`}
-                        >
-                          {/* Selected Left Colored Accent Ribbon */}
-                          {activeVocationalTab === idx && (
-                            <div 
-                              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" 
-                              style={{ backgroundColor: tab.accentColor }} 
-                            />
-                          )}
-
-                          <div className="flex flex-col gap-2">
-                            <span 
-                              className="text-[10px] font-mono font-extrabold uppercase tracking-wider"
-                              style={{ color: tab.accentColor }}
-                            >
-                              {tab.tag}
-                            </span>
-                            <h3 className="text-base font-extrabold text-neutral-900 group-hover:text-black">
-                              {tab.title}
-                            </h3>
-                            <p className="text-xs text-neutral-500 leading-relaxed">
-                              {tab.desc}
-                            </p>
-                          </div>
-
-                          <div className="mt-4 flex items-center justify-between">
-                            <span 
-                              className="text-xs font-bold transition-colors"
-                              style={{ color: activeVocationalTab === idx ? tab.accentColor : '#9CA3AF' }}
-                            >
-                              {activeVocationalTab === idx ? "Viewing Details ➔" : "Read Details ➔"}
-                            </span>
-                            {activeVocationalTab === idx && (
-                              <div 
-                                className="w-1.5 h-1.5 rounded-full animate-ping"
-                                style={{ backgroundColor: tab.accentColor }}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                  </div>
-
-                  {/* Right Cinematic Display Card */}
-                  <div id="vocational-details-panel" className="hidden lg:flex lg:col-span-5 relative flex-col justify-between bg-white rounded-3xl border border-neutral-200/90 p-6 shadow-xs overflow-hidden leading-normal">
-                    
-                    <div>
-
-
-                      {/* Expanded Narrative */}
-                      <div className="mt-5 flex flex-col gap-2">
-                        <span className="text-[10px] font-mono tracking-widest text-[#F57C00] uppercase font-bold">
-                          Detailed Specifications
-                        </span>
-                        <h4 className="text-lg font-black text-neutral-900 leading-tight">
-                          {vocationalTabs[activeVocationalTab].title}
-                        </h4>
-                        <p className="text-xs text-neutral-600 leading-relaxed">
-                          {vocationalTabs[activeVocationalTab].detailed}
-                        </p>
-                      </div>
-
-                      {/* Stats details cluster */}
-                      <div className="flex flex-col gap-4 mt-5">
-                        <div className="flex justify-between items-center border-b border-neutral-100 pb-3">
-                          <span className="text-xs font-semibold text-neutral-500">Outcome Profile</span>
-                          <span className="text-xs font-bold text-neutral-900 text-right">
-                            {vocationalTabs[activeVocationalTab].outcome}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center border-b border-neutral-100 pb-3">
-                          <span className="text-xs font-semibold text-neutral-500">Placement Success</span>
-                          <span className="text-xs font-bold text-neutral-900 text-right">
-                            {vocationalTabs[activeVocationalTab].rate}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-semibold text-neutral-500">Sovereignty Track</span>
-                          <span className="text-xs font-mono font-bold text-right" style={{ color: vocationalTabs[activeVocationalTab].accentColor }}>
-                            {vocationalTabs[activeVocationalTab].type}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Cinematic overlay card */}
-                    <div className="mt-6 p-4 rounded-2xl border text-center flex flex-col items-center gap-2 bg-neutral-50/50 border-neutral-100">
-                      <p className="text-[11px] font-bold text-neutral-700 tracking-tight uppercase">
-                        Master real physical tradecraft & leadership skills
-                      </p>
-                      <button 
-                        onClick={() => {
-                          setSelectedProgram(vocationalTabs[activeVocationalTab].programName);
-                          setSelectedTrack(vocationalTabs[activeVocationalTab].trackName);
-                          scrollToView("admissions-portal");
-                        }}
-                        className="w-full py-3.5 text-white rounded-xl text-xs font-bold tracking-tight uppercase transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                        style={{ background: `linear-gradient(135deg, ${vocationalTabs[activeVocationalTab].accentColor}, ${vocationalTabs[activeVocationalTab].accentColor}cc)` }}
-                      >
-                        <span>{vocationalTabs[activeVocationalTab].buttonText.replace(" ➔", "")}</span>
-                        <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                      </button>
-                    </div>
-
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-        </div>
+</div>
 
       </section>
 
@@ -3185,19 +3095,84 @@ export default function App() {
                       </div>
                       
                       {/* Cost Invoice Breakdown */}
-                      <div className="bg-white p-4 rounded-2xl border border-neutral-200/60 mt-2">
-                        <div className="flex justify-between text-[11px] text-neutral-500 mb-1.5">
-                          <span>Direct Entry Portal Fee</span>
-                          <span>₦{(settings.paymentAmount || 10000).toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between text-[11px] text-neutral-500 mb-1.5">
-                          <span>Instant Board Sync Fee</span>
+                      <div className="bg-white p-4 rounded-2xl border border-neutral-200/60 mt-2 flex flex-col gap-0.5">
+                        <h4 className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-1.5 px-1">Select Fees to Remit</h4>
+                        
+                        <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-neutral-50 p-1.5 rounded-lg transition-colors">
+                          <div className="flex items-center gap-2">
+                            <input type="checkbox" checked={selectedFeesToPay.registration} onChange={() => toggleFee('registration')} className="accent-[#138A36] w-3.5 h-3.5 rounded-sm" />
+                            <span>Registration Fee</span>
+                          </div>
+                          <span className={"font-mono font-semibold " + (selectedFeesToPay.registration ? "text-neutral-900" : "text-neutral-400")}>₦15,000</span>
+                        </label>
+                        
+                        <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-neutral-50 p-1.5 rounded-lg transition-colors">
+                          <div className="flex items-center gap-2">
+                            <input type="checkbox" checked={selectedFeesToPay.acceptance} onChange={() => toggleFee('acceptance')} className="accent-[#138A36] w-3.5 h-3.5 rounded-sm" />
+                            <span>Acceptance Fee</span>
+                          </div>
+                          <span className={"font-mono font-semibold " + (selectedFeesToPay.acceptance ? "text-neutral-900" : "text-neutral-400")}>₦10,000</span>
+                        </label>
+                        
+                        <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-neutral-50 p-1.5 rounded-lg transition-colors">
+                          <div className="flex items-center gap-2">
+                            <input type="checkbox" checked={selectedFeesToPay.tuition} onChange={() => toggleFee('tuition')} className="accent-[#138A36] w-3.5 h-3.5 rounded-sm" />
+                            <span>Pathway Tuition</span>
+                          </div>
+                          <span className={"font-mono font-semibold " + (selectedFeesToPay.tuition ? "text-neutral-900" : "text-neutral-400")}>
+                            ₦{(pendingPayload.totalFees - 25000 - (pendingPayload.hostelRequired ? 100000 : 0) - (pendingPayload.musicClasses ? 30000 : 0) - (pendingPayload.vocationalSkills ? 30000 : 0) - (pendingPayload.sportsAcademy ? 30000 : 0)).toLocaleString()}
+                          </span>
+                        </label>
+
+                        {pendingPayload.hostelRequired && (
+                          <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-sky-50 p-1.5 rounded-lg transition-colors">
+                            <div className="flex items-center gap-2">
+                              <input type="checkbox" checked={selectedFeesToPay.hostel} onChange={() => toggleFee('hostel')} className="accent-sky-500 w-3.5 h-3.5 rounded-sm" />
+                              <span className="text-sky-600 font-medium">Hostel Accommodation</span>
+                            </div>
+                            <span className={"font-mono font-semibold " + (selectedFeesToPay.hostel ? "text-sky-700" : "text-sky-300")}>₦100,000</span>
+                          </label>
+                        )}
+                        
+                        {pendingPayload.musicClasses && (
+                          <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-amber-50 p-1.5 rounded-lg transition-colors">
+                            <div className="flex items-center gap-2">
+                              <input type="checkbox" checked={selectedFeesToPay.music} onChange={() => toggleFee('music')} className="accent-amber-500 w-3.5 h-3.5 rounded-sm" />
+                              <span className="text-amber-600 font-medium">Music Classes</span>
+                            </div>
+                            <span className={"font-mono font-semibold " + (selectedFeesToPay.music ? "text-amber-700" : "text-amber-300")}>₦30,000</span>
+                          </label>
+                        )}
+                        
+                        {pendingPayload.vocationalSkills && (
+                          <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-amber-50 p-1.5 rounded-lg transition-colors">
+                            <div className="flex items-center gap-2">
+                              <input type="checkbox" checked={selectedFeesToPay.vocational} onChange={() => toggleFee('vocational')} className="accent-amber-500 w-3.5 h-3.5 rounded-sm" />
+                              <span className="text-amber-600 font-medium">Vocational Skills</span>
+                            </div>
+                            <span className={"font-mono font-semibold " + (selectedFeesToPay.vocational ? "text-amber-700" : "text-amber-300")}>₦30,000</span>
+                          </label>
+                        )}
+                        
+                        {pendingPayload.sportsAcademy && (
+                          <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-amber-50 p-1.5 rounded-lg transition-colors">
+                            <div className="flex items-center gap-2">
+                              <input type="checkbox" checked={selectedFeesToPay.sports} onChange={() => toggleFee('sports')} className="accent-amber-500 w-3.5 h-3.5 rounded-sm" />
+                              <span className="text-amber-600 font-medium">Sports Academy</span>
+                            </div>
+                            <span className={"font-mono font-semibold " + (selectedFeesToPay.sports ? "text-amber-700" : "text-amber-300")}>₦30,000</span>
+                          </label>
+                        )}
+                        
+                        <div className="flex justify-between text-[11px] text-neutral-400 border-t border-neutral-100 pt-2 mt-1 px-1.5">
+                          <span>Board Sync Fee</span>
                           <span className="text-emerald-600 font-bold uppercase text-[9px] font-mono">FREE</span>
                         </div>
-                        <hr className="border-neutral-100 my-2" />
-                        <div className="flex justify-between text-sm text-neutral-950 font-black">
+                        <hr className="border-neutral-100 my-1.5" />
+                        
+                        <div className="flex justify-between text-sm text-neutral-950 font-black px-1.5">
                           <span>Total Amount to Remit</span>
-                          <span className="text-neutral-900">₦{(settings.paymentAmount || 10000).toLocaleString()}</span>
+                          <span className="text-emerald-600">₦{calculateCurrentPaymentAmount().toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
@@ -3216,7 +3191,7 @@ export default function App() {
                           </>
                         ) : (
                           <>
-                            <span>Authorize ₦{(settings.paymentAmount || 10000).toLocaleString()} Payment</span>
+                            <span>Authorize ₦{calculateCurrentPaymentAmount().toLocaleString()} Payment</span>
                             <span className="px-1.5 py-0.5 bg-white/20 text-[8px] font-black rounded uppercase font-mono tracking-none">Live Gate</span>
                           </>
                         )}
@@ -3236,115 +3211,361 @@ export default function App() {
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleAdmissionSubmit} className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Full Scholar Name (Surname First)</label>
-                      <input 
-                        type="text" 
-                        required
-                        placeholder="e.g. Adebayo Blessing Amara"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="p-3 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900/10 transition-all font-sans text-neutral-900"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Mobile Phone Number</label>
-                        <input 
-                          type="tel" 
-                          required
-                          placeholder="e.g. 08123456789"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          className="p-3 border border-neutral-200 rounded-xl bg-white text-sm font-mono focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900/10 transition-all text-neutral-900"
-                        />
+                                    <div className="flex flex-col h-[600px] bg-neutral-50 rounded-2xl border border-neutral-100 overflow-hidden relative shadow-inner">
+                    {/* Chat Header */}
+                    <div className="bg-white px-6 py-4 border-b border-neutral-200 shadow-sm z-10 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 flex items-center justify-center text-white shadow-sm">
+                          <Bot className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-neutral-900 text-sm">Univlove Assistant</h4>
+                          <span className="text-[10px] text-[#138A36] flex items-center gap-1 font-semibold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#138A36] animate-pulse"></span>
+                            Online & Ready
+                          </span>
+                        </div>
                       </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Email Address</label>
-                        <input 
-                          type="email" 
-                          required
-                          placeholder="e.g. blessing@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="p-3 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900/10 transition-all text-neutral-900"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Preferred Program Sector</label>
-                        <select 
-                          value={selectedProgram}
-                          onChange={(e) => {
-                            setSelectedProgram(e.target.value);
-                            if (e.target.value.includes("Prevarsity")) {
-                              setSelectedTrack("JUPEB Route into 200L");
-                            } else if (e.target.value.includes("Technology")) {
-                              setSelectedTrack("Software Development & Cyber Security");
-                            } else if (e.target.value.includes("Study")) {
-                              setSelectedTrack("Canada Pathway Programs");
-                            } else {
-                              setSelectedTrack("General Mastery");
-                            }
-                          }}
-                          className="p-3 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900/10 transition-all text-neutral-900"
-                        >
-                          <option value="JUPEB (Prevarsity Direct Entry)">JUPEB Direct Entry Year 2</option>
-                          <option value="IJMB (Alternate Prevarsity Entry)">IJMB Alternate Entry path</option>
-                          <option value="Technology Academy & Digital Skills">Technology Academy Masterclass</option>
-                          <option value="Vocational Skills & Enterprise">Vocational Development Course</option>
-                          <option value="Study Abroad Opportunities">Global Study Abroad Placement</option>
-                          <option value="Sports Academy & Leadership Development">Sports & Athletics Scouting</option>
-                          <option value="Teacher Training & Educator Pro">Teacher AI Workshop & Methodology</option>
-                        </select>
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Track Specialization</label>
-                        <input 
-                          type="text" 
-                          placeholder="e.g. Software Development, Sports, Germany Option"
-                          value={selectedTrack}
-                          onChange={(e) => setSelectedTrack(e.target.value)}
-                          className="p-3 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900/10 transition-all text-neutral-900"
-                        />
+                      <div className="flex items-center gap-3">
+                        {chatStep > 0 && (
+                          <button 
+                            onClick={() => {
+                              if(window.confirm('Are you sure you want to clear your progress and start over?')) {
+                                try { localStorage.removeItem(FORM_CACHE_KEY); } catch(_) {}
+                                setChatStep(0);
+                                setFullName('');
+                                setEmail('');
+                                setPhone('');
+                                setDob('');
+                                setGender('');
+                                setWhatsapp('');
+                                setAddress('');
+                                setCity('');
+                                setStateLoc('');
+                                setCountry('Nigeria');
+                                setCurrentLevel('');
+                                setSchoolAttended('');
+                                setOLevelStatus('');
+                                setSittings('1');
+                                setSelectedProgram('');
+                                setSelectedTrack('');
+                                setIntendedUniversity('');
+                                setIntendedDegree('');
+                                setAlternativeCourse('');
+                                setJambStatus('');
+                                setParentName('');
+                                setParentRelationship('');
+                                setParentPhone('');
+                                setParentEmail('');
+                                setHostelRequired(false);
+                                setMusicClasses(false);
+                                setVocationalSkills(false);
+                                setSportsAcademy(false);
+                                setCandidateNotes('');
+                              }
+                            }}
+                            className="text-[10px] font-bold text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-colors"
+                          >
+                            Clear Draft
+                          </button>
+                        )}
+                        <div className="text-[10px] font-mono text-neutral-400 font-bold bg-neutral-100 px-2.5 py-1 rounded-md">
+                          Step {chatStep + 1} / 8
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Special Notes or Ambitions (Optional)</label>
-                      <textarea 
-                        rows={2}
-                        placeholder="Include age declarations, high school exams passed, or boarding preferences..."
-                        value={candidateNotes}
-                        onChange={(e) => setCandidateNotes(e.target.value)}
-                        className="p-3 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900/10 transition-all resize-none text-neutral-900"
-                      />
-                    </div>
+                    {/* Chat Area */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6" id="chat-scroll-area">
+                      
+                      {/* Step 0: Name */}
+                      <AnimatePresence>
+                        {chatStep >= 0 && (
+                          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
+                              <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
+                                <p>Hi there! 👋 Let's get your application ready. It's completely stress-free.</p>
+                                <p className="mt-2 font-medium">First, what's your full name? (Surname first, please)</p>
+                              </div>
+                            </div>
+                            {chatStep === 0 && (
+                              <div className="ml-11 flex items-center gap-2">
+                                <input type="text" autoFocus placeholder="Type your full name..." value={fullName} onChange={e => setFullName(e.target.value)} onKeyDown={e => e.key === 'Enter' && fullName.trim() && setChatStep(1)} className="flex-1 p-3.5 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-[#138A36] shadow-sm text-neutral-900" />
+                                <button onClick={() => fullName.trim() && setChatStep(1)} className={"p-3.5 rounded-xl transition-colors " + (fullName.trim() ? "bg-[#138A36] text-white shadow-md hover:bg-[#0f732d]" : "bg-neutral-200 text-neutral-400 cursor-not-allowed")}><Send className="w-4 h-4" /></button>
+                              </div>
+                            )}
+                            {chatStep > 0 && (
+                              <div className="flex self-end items-center gap-2 max-w-[85%]">
+                                <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
+                                  {fullName}
+                                </div>
+                                <button onClick={() => setChatStep(0)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
 
-                    <button
-                      type="submit"
-                      disabled={submittingApp}
-                      className="w-full mt-2 py-3.5 bg-gradient-to-r from-[#138A36] to-[#058031] hover:from-[#0d6d29] hover:to-[#035f24] text-white font-bold rounded-xl text-xs uppercase tracking-widest transition-all cursor-pointer shadow-md hover:shadow-lg flex items-center justify-center gap-2 active:scale-98 disabled:opacity-75"
-                    >
-                      {submittingApp ? (
-                        <>
-                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                          Transmitting to Registrar...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 text-neutral-400 shrink-0" />
-                          Transmit Online Application Portal
-                        </>
-                      )}
-                    </button>
-                  </form>
+                      {/* Step 1: Contact Info */}
+                      <AnimatePresence>
+                        {chatStep >= 1 && (
+                          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
+                              <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
+                                <p>Nice to meet you, <strong className="text-neutral-900">{fullName.split(' ')[0]}</strong>! ✨</p>
+                                <p className="mt-2 font-medium">How can we reach you? We need your email, phone, and WhatsApp numbers.</p>
+                              </div>
+                            </div>
+                            {chatStep === 1 && (
+                              <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
+                                <input type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <input type="tel" placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <input type="tel" placeholder="WhatsApp Number" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <button onClick={() => (email && phone) && setChatStep(2)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((email && phone) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Continue</button>
+                                <div className="text-center mt-1"><button onClick={() => setChatStep(0)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
+                              </div>
+                            )}
+                            {chatStep > 1 && (
+                              <div className="flex self-end items-center gap-2 max-w-[85%]">
+                                <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md flex flex-col gap-1">
+                                  <span>📧 {email}</span>
+                                  <span>📞 {phone}</span>
+                                </div>
+                                <button onClick={() => setChatStep(1)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Step 2: Demographics */}
+                      <AnimatePresence>
+                        {chatStep >= 2 && (
+                          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
+                              <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
+                                <p className="font-medium">Got it! Just a couple quick details for your profile. When were you born, and what is your gender?</p>
+                              </div>
+                            </div>
+                            {chatStep === 2 && (
+                              <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
+                                <input type="date" value={dob} onChange={e => setDob(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <select value={gender} onChange={e => setGender(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]">
+                                  <option value="">Select Gender</option><option>Male</option><option>Female</option>
+                                </select>
+                                <button onClick={() => (dob && gender) && setChatStep(3)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((dob && gender) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Next</button>
+                                <div className="text-center mt-1"><button onClick={() => setChatStep(1)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
+                              </div>
+                            )}
+                            {chatStep > 2 && (
+                              <div className="flex self-end items-center gap-2 max-w-[85%]">
+                                <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
+                                  {dob} • {gender}
+                                </div>
+                                <button onClick={() => setChatStep(2)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Step 3: Location */}
+                      <AnimatePresence>
+                        {chatStep >= 3 && (
+                          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
+                              <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
+                                <p className="font-medium">Awesome. Where do you currently live?</p>
+                              </div>
+                            </div>
+                            {chatStep === 3 && (
+                              <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
+                                <input type="text" placeholder="Street Address" value={address} onChange={e => setAddress(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <div className="grid grid-cols-2 gap-2">
+                                  <input type="text" placeholder="City" value={city} onChange={e => setCity(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                  <input type="text" placeholder="State" value={stateLoc} onChange={e => setStateLoc(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                </div>
+                                <input type="text" placeholder="Country" value={country} onChange={e => setCountry(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <button onClick={() => (address && city) && setChatStep(4)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((address && city) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Continue</button>
+                                <div className="text-center mt-1"><button onClick={() => setChatStep(2)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
+                              </div>
+                            )}
+                            {chatStep > 3 && (
+                              <div className="flex self-end items-center gap-2 max-w-[85%]">
+                                <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
+                                  {city}, {stateLoc}, {country}
+                                </div>
+                                <button onClick={() => setChatStep(3)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Step 4: Academic */}
+                      <AnimatePresence>
+                        {chatStep >= 4 && (
+                          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
+                              <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
+                                <p>Great! Now, let's talk about your academic background. 📚</p>
+                                <p className="mt-2 font-medium">What is your current level and O-Level status?</p>
+                              </div>
+                            </div>
+                            {chatStep === 4 && (
+                              <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
+                                <input type="text" placeholder="Current Level (e.g. SS3 Graduate)" value={currentLevel} onChange={e => setCurrentLevel(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <input type="text" placeholder="Last School Attended" value={schoolAttended} onChange={e => setSchoolAttended(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <select value={oLevelStatus} onChange={e => setOLevelStatus(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]">
+                                  <option value="">O-Level Status</option><option>Completed - WAEC</option><option>Completed - NECO</option><option>Awaiting Results</option>
+                                </select>
+                                <button onClick={() => (currentLevel && schoolAttended) && setChatStep(5)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((currentLevel && schoolAttended) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Looks good</button>
+                                <div className="text-center mt-1"><button onClick={() => setChatStep(3)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
+                              </div>
+                            )}
+                            {chatStep > 4 && (
+                              <div className="flex self-end items-center gap-2 max-w-[85%]">
+                                <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
+                                  {currentLevel} at {schoolAttended}
+                                </div>
+                                <button onClick={() => setChatStep(4)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Step 5: Pathway confirmation */}
+                      <AnimatePresence>
+                        {chatStep >= 5 && (
+                          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
+                              <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
+                                <p>Almost done! 🚀 Let's confirm your selected pathway and intended university.</p>
+                              </div>
+                            </div>
+                            {chatStep === 5 && (
+                              <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
+                                {!selectedProgram ? (
+                                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs text-center font-medium">Please select a pathway from the grid above first!</div>
+                                ) : (
+                                  <div className="p-3 bg-[#138A36]/5 border border-[#138A36]/20 rounded-xl">
+                                    <div className="text-[10px] text-neutral-500 font-bold uppercase mb-1">Selected Pathway:</div>
+                                    <div className="font-bold text-neutral-900">{selectedProgram}</div>
+                                    <div className="text-xs text-neutral-600 mt-0.5">↳ {selectedTrack}</div>
+                                  </div>
+                                )}
+                                <input type="text" placeholder="Intended University (Optional)" value={intendedUniversity} onChange={e => setIntendedUniversity(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <input type="text" placeholder="Intended Degree (Optional)" value={intendedDegree} onChange={e => setIntendedDegree(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <button onClick={() => selectedProgram && setChatStep(6)} className={"w-full p-3 rounded-xl font-bold transition-all " + (selectedProgram ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Confirm Pathway</button>
+                                <div className="text-center mt-1"><button onClick={() => setChatStep(4)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
+                              </div>
+                            )}
+                            {chatStep > 5 && (
+                              <div className="flex self-end items-center gap-2 max-w-[85%]">
+                                <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
+                                  {selectedProgram}
+                                </div>
+                                <button onClick={() => setChatStep(5)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Step 6: Parent Info & Extras */}
+                      <AnimatePresence>
+                        {chatStep >= 6 && (
+                          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
+                              <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
+                                <p>Last step! We just need contact details for a Parent or Guardian, and you can select any extra services (like Accommodation).</p>
+                              </div>
+                            </div>
+                            {chatStep === 6 && (
+                              <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
+                                <div className="text-[10px] font-bold text-neutral-500 uppercase">Guardian Info</div>
+                                <input type="text" placeholder="Parent/Guardian Name" value={parentName} onChange={e => setParentName(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <input type="tel" placeholder="Guardian Phone" value={parentPhone} onChange={e => setParentPhone(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                
+                                <div className="text-[10px] font-bold text-neutral-500 uppercase mt-2">Extra Services</div>
+                                <label className="flex items-center gap-2 p-2 border border-neutral-100 rounded-lg cursor-pointer hover:bg-neutral-50">
+                                  <input type="checkbox" checked={hostelRequired} onChange={e => setHostelRequired(e.target.checked)} className="accent-[#138A36]" />
+                                  <span className="text-xs font-medium">Add Hostel Accommodation</span>
+                                </label>
+                                
+                                <button onClick={() => (parentName && parentPhone) && setChatStep(7)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((parentName && parentPhone) ? "bg-[#138A36] text-white shadow-md hover:bg-[#0f732d]" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Review Application ➔</button>
+                                <div className="text-center mt-1"><button onClick={() => setChatStep(5)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
+                              </div>
+                            )}
+                            {chatStep > 6 && (
+                              <div className="flex self-end items-center gap-2 max-w-[85%]">
+                                <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
+                                  Guardian: {parentName} {hostelRequired && '(+ Hostel)'}
+                                </div>
+                                <button onClick={() => setChatStep(6)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Step 7: Final Summary (Reusing original submit structure) */}
+                      <AnimatePresence>
+                        {chatStep === 7 && (
+                          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3 pb-8">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
+                              <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
+                                <p>🎉 All set, {fullName.split(' ')[0]}! Please review your fee summary below and finalize your application.</p>
+                              </div>
+                            </div>
+                            <div className="ml-11">
+                              <div className="bg-neutral-900 text-white p-5 rounded-2xl flex flex-col gap-2.5 max-w-sm mb-4">
+                                <h4 className="text-[9px] font-black uppercase tracking-widest text-neutral-400 border-b border-neutral-700 pb-2 mb-1">📋 Application Summary</h4>
+                                <div className="flex justify-between text-xs"><span className="text-neutral-300">Registration</span><span className="font-mono font-bold">₦15,000</span></div>
+                                <div className="flex justify-between text-xs"><span className="text-neutral-300">Acceptance</span><span className="font-mono font-bold">₦10,000</span></div>
+                                <div className="border-t border-neutral-700 pt-2 mt-1">
+                                  <div className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mb-1">{selectedProgram}</div>
+                                  <div className="flex justify-between text-xs"><span className="text-neutral-400 pl-2">↳ {selectedTrack}</span><span className="font-mono font-bold">₦{getPathwayTuition().toLocaleString()}</span></div>
+                                </div>
+                                {hostelRequired && (
+                                  <div className="border-t border-neutral-700 pt-2 flex flex-col gap-1">
+                                    <div className="flex justify-between text-xs text-sky-400"><span>Hostel Accommodation</span><span className="font-mono font-bold">₦100,000</span></div>
+                                  </div>
+                                )}
+                                <div className="border-t border-neutral-600 pt-3 flex justify-between items-center mt-1">
+                                  <span className="text-xs font-black uppercase tracking-widest text-neutral-200">Total Payable</span>
+                                  <span className="text-xl font-mono font-black text-emerald-400">₦{calculateTotalFees().toLocaleString()}</span>
+                                </div>
+                              </div>
+                              <form onSubmit={handleAdmissionSubmit} className="max-w-sm">
+                                <button
+                                  type="submit"
+                                  disabled={submittingApp}
+                                  className="w-full py-4 bg-gradient-to-r from-[#138A36] to-[#058031] hover:from-[#0d6d29] hover:to-[#035f24] text-white font-black rounded-xl text-sm uppercase tracking-widest transition-all cursor-pointer shadow-lg hover:shadow-xl flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60"
+                                >
+                                  {submittingApp ? (
+                                    <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>Transmitting...</>
+                                  ) : (
+                                    <>Submit Application Dossier <ArrowRight className="w-4 h-4 stroke-[3]" /></>
+                                  )}
+                                </button>
+                                <div className="text-center mt-3"><button type="button" onClick={() => setChatStep(6)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Wait, I need to edit something</button></div>
+                              </form>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -3353,90 +3574,63 @@ export default function App() {
                 Advanced progress is guaranteed. Your details sync instantly on submission.
               </div>
 
+              {/* Info panels moved to right column */}
+
             </div>
 
-            {/* Right Column: Dynamic Testimonial Display mimicking the Image */}
-            <div className="lg:col-span-5 relative flex flex-col justify-end p-8 md:p-12 lg:p-14 overflow-hidden bg-neutral-900 text-white min-h-[480px] lg:min-h-full">
+            {/* Right Column: Admission Requirements + Info Panels */}
+            <div className="lg:col-span-5 relative flex flex-col gap-6 pt-8 pr-4">
               
-              {/* Dynamic image slide background */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeAdmissionTestimonial}
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${admissionTestimonials[activeAdmissionTestimonial].image})` }}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.45, ease: "easeInOut" }}
-                />
-              </AnimatePresence>
-              
-              {/* Radial gradient shading for text eligibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/70 to-neutral-950/30 w-full h-full pointer-events-none z-10" />
-
-              {/* Testimonial Content Panel */}
-              <div className="relative z-20 flex flex-col h-full justify-between items-start">
-                
-                {/* Visual Label Ribbon */}
-                <div className="px-3.5 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/15 text-[10px] font-mono tracking-widest uppercase font-bold text-white select-none">
-                  🎓 REGISTERED ALUMNI REVIEW
+              <div className="bg-neutral-50 p-5 rounded-2xl border border-neutral-100 flex flex-col gap-3">
+                <h4 className="text-[9px] font-black uppercase tracking-widest text-[#138A36]">General Admission Requirements</h4>
+                <ul className="text-xs text-neutral-600 flex flex-col gap-2 list-disc pl-4 leading-relaxed">
+                  <li>SS2 students proceeding to SS3 may apply.</li>
+                  <li>Awaiting O-Level results are accepted.</li>
+                  <li>Minimum of 5 O-Level credits in WAEC, NECO or NABTEB (not more than 2 sittings), subject to programme requirements.</li>
+                  <li>Applicants from any age group may apply, subject to the requirements of their intended programme.</li>
+                  <li>JAMB is not required to enrol at UNIVLOVE PREVARSITY.</li>
+                </ul>
+                <div className="text-[10px] bg-amber-50 text-amber-800 p-2 rounded-lg mt-1 border border-amber-200 leading-relaxed">
+                  <strong>Note:</strong> Where JAMB is required for a student's eventual university route, UNIVLOVE provides appropriate JAMB guidance.
                 </div>
+              </div>
 
-                {/* Main Quote Box */}
-                <div className="w-full flex flex-col gap-5 text-left mt-auto">
-                  <h4 className="text-lg md:text-xl font-semibold leading-relaxed text-white font-sans tracking-tight">
-                    "{admissionTestimonials[activeAdmissionTestimonial].quote}"
-                  </h4>
-                  
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-base font-bold text-white tracking-tight">
-                      {admissionTestimonials[activeAdmissionTestimonial].author}
-                    </span>
-                    <span className="text-xs text-neutral-300 font-medium">
-                      {admissionTestimonials[activeAdmissionTestimonial].role}
-                    </span>
-                    <span className="text-[10px] uppercase font-mono font-bold text-emerald-400 mt-1 flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full bg-emerald-400"></span>
-                      Verified: {admissionTestimonials[activeAdmissionTestimonial].company} Pathway ({admissionTestimonials[activeAdmissionTestimonial].achievement})
-                    </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-neutral-50 p-5 rounded-2xl border border-neutral-100">
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-[#138A36] mb-2">Programme Duration</h4>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-3xl font-black text-neutral-800">10</span>
+                    <span className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Months</span>
                   </div>
-
-                  {/* Five Star rating and slide buttons */}
-                  <div className="flex items-center justify-between border-t border-white/15 pt-5 mt-2">
-                    
-                    {/* Stars */}
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3.5 h-3.5 fill-white text-white" />
-                      ))}
-                    </div>
-
-                    {/* Left & Right slider controllers */}
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => {
-                          setActiveAdmissionTestimonial((prev) => (prev - 1 + admissionTestimonials.length) % admissionTestimonials.length);
-                        }}
-                        className="w-10 h-10 rounded-full border border-white/20 hover:border-white text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer select-none active:scale-95 bg-black/10 backdrop-blur-xs"
-                        aria-label="Previous Testimonial"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setActiveAdmissionTestimonial((prev) => (prev + 1) % admissionTestimonials.length);
-                        }}
-                        className="w-10 h-10 rounded-full border border-white/20 hover:border-white text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer select-none active:scale-95 bg-black/10 backdrop-blur-xs"
-                        aria-label="Next Testimonial"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                  </div>
-
+                  <p className="text-xs text-neutral-500 leading-relaxed">Two semesters of ~5 months each. Mon–Fri, 8 hrs/day. Saturday: Sports, Music & Extracurriculars.</p>
                 </div>
+                <div className="bg-neutral-900 p-5 rounded-2xl text-white">
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-3">Important Dates 2026</h4>
+                  <div className="flex flex-col gap-2 text-xs">
+                    <div className="flex justify-between border-b border-neutral-800 pb-2"><span className="text-neutral-300">Reg Closes</span><span className="font-mono font-bold text-rose-400">Sep 25</span></div>
+                    <div className="flex justify-between border-b border-neutral-800 pb-2"><span className="text-neutral-300">Orientation</span><span className="font-mono font-bold text-amber-400">Sep 28-Oct 3</span></div>
+                    <div className="flex justify-between"><span className="text-neutral-300">Lectures Start</span><span className="font-mono font-bold text-emerald-400">Oct 5</span></div>
+                  </div>
+                </div>
+              </div>
 
+              <div className="bg-neutral-50 p-5 rounded-2xl border border-neutral-100 flex flex-col gap-6">
+                <div>
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-[#138A36] mb-3">Student Support</h4>
+                  <ul className="text-xs text-neutral-600 grid grid-cols-2 gap-2">
+                    {["Academic Advisor","Career Counselling","Mentorship","Admission Guidance","University Pathway","JAMB Guidance","Continuous Assessment","Parent Progress Reports"].map(s => (
+                      <li key={s} className="flex items-center gap-1.5"><CheckCircle className="w-3 h-3 text-emerald-500 shrink-0" />{s}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-[#138A36] mb-3">Our Locations</h4>
+                  <div className="flex flex-col gap-3 text-xs text-neutral-600">
+                    <div><strong className="text-neutral-800 block">Centre 1</strong>Opp. RCCG Mega, Obeta Junction, Ilesa — Pre-Degree, Pre-Engineering</div>
+                    <div><strong className="text-neutral-800 block">Centre 2</strong>Ijesa Felates/Progressive Club, Breweries Area, Ilesa — Pre-Law, Pre-Nursing, Hostel</div>
+                    <div><strong className="text-neutral-800 block">Head Office</strong>G.27 CROWGLO HUB, Opp. Maxwell Telecoms, Ereguru Roundabout, Ilesa</div>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -4097,13 +4291,13 @@ export default function App() {
         {isMobileModalOpen && (() => {
           let currentModalTab = null;
           let modalChapterTitle = "";
-          if (activeChapter === 'academic') {
+          if (activeChapter === 'none') {
             currentModalTab = academicTabs[activeAcademicTab];
             modalChapterTitle = "Academic Chapter I";
-          } else if (activeChapter === 'tech') {
+          } else if (activeChapter === 'none') {
             currentModalTab = techTabs[activeTechTab];
             modalChapterTitle = "Tech Chapter II";
-          } else if (activeChapter === 'vocational') {
+          } else if (activeChapter === 'none') {
             currentModalTab = vocationalTabs[activeVocationalTab];
             modalChapterTitle = "Vocational Chapter III";
           }
@@ -4164,7 +4358,7 @@ export default function App() {
                   <div className="flex flex-col gap-3.5 bg-neutral-50 p-4 rounded-2xl border-0">
                     <div className="flex justify-between items-center border-b-0 pb-2.5 text-left">
                       <span className="text-xs font-semibold text-neutral-500">
-                        {activeChapter === 'academic' ? 'Primary Outcome' : activeChapter === 'tech' ? 'Core Qualification' : 'Core Focus Area'}
+                        {activeChapter === 'none' ? 'Primary Outcome' : activeChapter === 'none' ? 'Core Qualification' : 'Core Focus Area'}
                       </span>
                       <span className="text-xs font-bold text-neutral-950 text-right">
                         {currentModalTab.outcome}
@@ -4172,7 +4366,7 @@ export default function App() {
                     </div>
                     <div className="flex justify-between items-center border-b-0 pb-2.5 text-left">
                       <span className="text-xs font-semibold text-neutral-500">
-                        {activeChapter === 'academic' ? 'Validation Standard' : activeChapter === 'tech' ? 'Industry Standard' : 'Verification Standard'}
+                        {activeChapter === 'none' ? 'Validation Standard' : activeChapter === 'none' ? 'Industry Standard' : 'Verification Standard'}
                       </span>
                       <span className="text-xs font-bold text-neutral-950 text-right">
                         {currentModalTab.rate}
@@ -4180,7 +4374,7 @@ export default function App() {
                     </div>
                     <div className="flex justify-between items-center text-left">
                       <span className="text-xs font-semibold text-neutral-500">
-                        {activeChapter === 'academic' ? 'Program Format' : activeChapter === 'tech' ? 'Our Placement Track' : 'Certifying Board'}
+                        {activeChapter === 'none' ? 'Program Format' : activeChapter === 'none' ? 'Our Placement Track' : 'Certifying Board'}
                       </span>
                       <span className="text-xs font-mono font-bold text-right" style={{ color: currentModalTab.accentColor }}>
                         {currentModalTab.type}
