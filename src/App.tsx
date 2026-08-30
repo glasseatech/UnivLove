@@ -63,6 +63,18 @@ interface ApplicationItem {
   phone: string;
   program: string;
   track: string;
+  studyMode?: 'onsite' | 'online';
+  programCategory?: string;
+  registrationFee?: number;
+  acceptanceFee?: number;
+  tuitionFee?: number;
+  developmentPackage?: boolean;
+  developmentPackageFee?: number;
+  accommodationRequired?: string;
+  accommodationFee?: number;
+  totalAmount?: number;
+  paymentAmount?: number;
+  paymentRef?: string;
   status: string;
   notes: string;
   createdAt: string;
@@ -134,13 +146,32 @@ const scholarTestimonials = [
   }
 ];
 
+export function isScienceProgram(programTitle: string, trackTitle?: string): boolean {
+  const p = (programTitle || '').toLowerCase();
+  const t = (trackTitle || '').toLowerCase();
+  if (p.includes('science') || p.includes('engineering') || p.includes('health') || p.includes('ict') || p.includes('technology') || p.includes('cyber')) return true;
+  if (t.includes('science') || t.includes('engineering') || t.includes('cyber') || t.includes('computer') || t.includes('medicine') || t.includes('health') || t.includes('technology') || t.includes('ai') || t.includes('software') || t.includes('data')) return true;
+  return false;
+}
+
+export function getPathwayTuition(programTitle: string, trackTitle: string, studyMode: 'onsite' | 'online' = 'onsite'): number {
+  if (!programTitle) return 0;
+  if (programTitle.includes('O-LEVEL') || programTitle.includes('FOUNDATION')) return 0;
+  const isScience = isScienceProgram(programTitle, trackTitle);
+  if (studyMode === 'online') {
+    return isScience ? 125000 : 100000;
+  }
+  // Onsite:
+  return isScience ? 175000 : 150000;
+}
+
 export const pathwaysConfig = [
   {
     id: 'jupeb-pre-degree',
     title: '🎓 JUPEB & PRE-DEGREE PATHWAYS',
     icon: GraduationCap,
     description: 'Direct-entry and pre-university preparation pathways.',
-    tuitionLogic: (sub) => (sub && sub.includes('Science')) ? 175000 : 150000,
+    tuitionLogic: (sub?: string) => (sub && sub.includes('Science')) ? 175000 : 150000,
     compulsoryFees: [],
     subCategories: [
       'JUPEB – Science', 'JUPEB – Arts', 'JUPEB – Commercial',
@@ -226,7 +257,7 @@ export const pathwaysConfig = [
     icon: Laptop,
     description: 'Preparation for the technology and software engineering space.',
     tuitionLogic: () => 175000,
-    compulsoryFees: [{ name: 'Technology Classes', amount: 30000 }],
+    compulsoryFees: [],
     subCategories: [
       'Computer Science', 'Software Engineering', 'Cybersecurity', 'Information Technology', 'Information Systems', 'Computer Engineering', 'Data Science', 'Artificial Intelligence', 'Cloud Computing', 'Networking', 'Web Development', 'Mobile App Development', 'Database Management', 'Digital Technology', 'Other Computing & Technology programmes'
     ],
@@ -237,7 +268,7 @@ export const pathwaysConfig = [
     title: '📚 O-LEVEL / FOUNDATION PREPARATION',
     icon: Award,
     description: 'Academic foundation for younger students and O-Level exam preparation.',
-    tuitionLogic: () => 0, // Default to 0 unless university pathway is picked
+    tuitionLogic: () => 0,
     compulsoryFees: [],
     subCategories: [
       'SS2 → SS3 Academic Preparation', 'O-Level Preparation', 'WAEC Preparation', 'NECO Preparation', 'NABTEB Preparation', 'Awaiting Results / Academic Improvement'
@@ -278,6 +309,9 @@ export default function App() {
   const [selectedPathwayId, setSelectedPathwayId] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Study Mode state (Onsite vs Online)
+  const [studyMode, setStudyMode] = useState<'onsite' | 'online'>('onsite');
+
   // Simulated live admissions from backend server state
   const [liveApplications, setLiveApplications] = useState<ApplicationItem[]>([]);
   const [appsLoading, setAppsLoading] = useState(false);
@@ -310,11 +344,9 @@ export default function App() {
   const [parentRelationship, setParentRelationship] = useState('');
   const [parentPhone, setParentPhone] = useState('');
   const [parentEmail, setParentEmail] = useState('');
-  // Add-ons
+  // Add-ons & Packages
+  const [developmentPackage, setDevelopmentPackage] = useState(true);
   const [hostelRequired, setHostelRequired] = useState(false);
-  const [musicClasses, setMusicClasses] = useState(false);
-  const [vocationalSkills, setVocationalSkills] = useState(false);
-  const [sportsAcademy, setSportsAcademy] = useState(false);
   const [candidateNotes, setCandidateNotes] = useState('');
   const [chatStep, setChatStep] = useState(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -325,11 +357,9 @@ export default function App() {
   const [selectedFeesToPay, setSelectedFeesToPay] = useState<Record<string, boolean>>({
     registration: true,
     acceptance: true,
-    tuition: false,
-    hostel: false,
-    music: false,
-    vocational: false,
-    sports: false
+    tuition: true,
+    devPackage: true,
+    hostel: false
   });
   
   const toggleFee = (feeKey: string) => {
@@ -344,37 +374,26 @@ export default function App() {
     let total = 0;
     if (selectedFeesToPay.registration) total += 15000;
     if (selectedFeesToPay.acceptance) total += 10000;
-    if (selectedFeesToPay.tuition) total += (pendingPayload.totalFees - 25000 - (pendingPayload.hostelRequired ? 100000 : 0) - (pendingPayload.musicClasses ? 30000 : 0) - (pendingPayload.vocationalSkills ? 30000 : 0) - (pendingPayload.sportsAcademy ? 30000 : 0));
-    if (selectedFeesToPay.hostel && pendingPayload.hostelRequired) total += 100000;
-    if (selectedFeesToPay.music && pendingPayload.musicClasses) total += 30000;
-    if (selectedFeesToPay.vocational && pendingPayload.vocationalSkills) total += 30000;
-    if (selectedFeesToPay.sports && pendingPayload.sportsAcademy) total += 30000;
+    if (selectedFeesToPay.tuition) total += (pendingPayload.tuitionFee || 0);
+    if (selectedFeesToPay.devPackage && pendingPayload.developmentPackage) total += 50000;
+    if (selectedFeesToPay.hostel && pendingPayload.studyMode === 'onsite' && pendingPayload.hostelRequired) total += 100000;
     return total;
   };
 
   // Fee helpers
-  const getPathwayTuition = () => {
-    const pw = pathwaysConfig.find(p => p.title === selectedProgram);
-    if (!pw) return 0;
-    return pw.tuitionLogic(selectedTrack);
+  const getCurrentTuition = (prog = selectedProgram, track = selectedTrack, mode = studyMode) => {
+    return getPathwayTuition(prog, track, mode);
   };
-  const getCompulsoryFees = () => {
-    const pw = pathwaysConfig.find(p => p.title === selectedProgram);
-    if (!pw) return 0;
-    // @ts-ignore
-    return pw.compulsoryFees.reduce((sum, f) => sum + f.amount, 0);
-  };
-  const calculateTotalFees = () => {
-    if (!selectedProgram) return 0;
-    let total = 15000 + 10000;
-    total += getPathwayTuition();
-    total += getCompulsoryFees();
-    if (hostelRequired) total += 100000;
-    if (musicClasses) total += 30000;
-    if (vocationalSkills) total += 30000;
-    if (sportsAcademy) total += 30000;
+
+  const calculateTotalFees = (prog = selectedProgram, track = selectedTrack, mode = studyMode, withDev = developmentPackage, withHostel = hostelRequired) => {
+    if (!prog) return 0;
+    let total = 15000 + 10000; // Registration + Acceptance
+    total += getPathwayTuition(prog, track, mode);
+    if (withDev) total += 50000;
+    if (mode === 'onsite' && withHostel) total += 100000;
     return total;
   };
+
   // Pathway selection helper
   const selectPathway = (categoryTitle: string, subCategory: string) => {
     setSelectedProgram(categoryTitle);
@@ -410,6 +429,7 @@ export default function App() {
       if (d.schoolAttended) setSchoolAttended(d.schoolAttended);
       if (d.oLevelStatus) setOLevelStatus(d.oLevelStatus);
       if (d.sittings) setSittings(d.sittings);
+      if (d.studyMode) setStudyMode(d.studyMode);
       if (d.selectedProgram) setSelectedProgram(d.selectedProgram);
       if (d.selectedTrack) setSelectedTrack(d.selectedTrack);
       if (d.intendedUniversity) setIntendedUniversity(d.intendedUniversity);
@@ -420,10 +440,8 @@ export default function App() {
       if (d.parentRelationship) setParentRelationship(d.parentRelationship);
       if (d.parentPhone) setParentPhone(d.parentPhone);
       if (d.parentEmail) setParentEmail(d.parentEmail);
+      if (typeof d.developmentPackage === 'boolean') setDevelopmentPackage(d.developmentPackage);
       if (typeof d.hostelRequired === 'boolean') setHostelRequired(d.hostelRequired);
-      if (typeof d.musicClasses === 'boolean') setMusicClasses(d.musicClasses);
-      if (typeof d.vocationalSkills === 'boolean') setVocationalSkills(d.vocationalSkills);
-      if (typeof d.sportsAcademy === 'boolean') setSportsAcademy(d.sportsAcademy);
       if (d.candidateNotes) setCandidateNotes(d.candidateNotes);
       if (typeof d.chatStep === 'number') setChatStep(d.chatStep);
     } catch (err) {
@@ -438,10 +456,10 @@ export default function App() {
       localStorage.setItem(FORM_CACHE_KEY, JSON.stringify({
         fullName, email, phone, dob, gender, whatsapp, address, city, stateLoc, country,
         currentLevel, schoolAttended, oLevelStatus, sittings,
-        selectedProgram, selectedTrack,
+        studyMode, selectedProgram, selectedTrack,
         intendedUniversity, intendedDegree, alternativeCourse, jambStatus,
         parentName, parentRelationship, parentPhone, parentEmail,
-        hostelRequired, musicClasses, vocationalSkills, sportsAcademy,
+        developmentPackage, hostelRequired,
         candidateNotes, chatStep
       }));
     } catch (err) {
@@ -450,10 +468,10 @@ export default function App() {
   }, [
     fullName, email, phone, dob, gender, whatsapp, address, city, stateLoc, country,
     currentLevel, schoolAttended, oLevelStatus, sittings,
-    selectedProgram, selectedTrack,
+    studyMode, selectedProgram, selectedTrack,
     intendedUniversity, intendedDegree, alternativeCourse, jambStatus,
     parentName, parentRelationship, parentPhone, parentEmail,
-    hostelRequired, musicClasses, vocationalSkills, sportsAcademy,
+    developmentPackage, hostelRequired,
     candidateNotes, chatStep
   ]);
 
@@ -936,24 +954,35 @@ export default function App() {
     e.preventDefault();
     if (!fullName || !email || !phone) return;
     
+    const tuition = getPathwayTuition(selectedProgram, selectedTrack, studyMode);
+    const total = calculateTotalFees(selectedProgram, selectedTrack, studyMode, developmentPackage, hostelRequired);
+
     setPendingPayload({
       fullName, email, phone, dob, gender, whatsapp, address, city, stateLoc, country,
       currentLevel, schoolAttended, oLevelStatus, sittings,
-      program: selectedProgram, track: selectedTrack,
+      studyMode,
+      program: selectedProgram,
+      track: selectedTrack,
+      programCategory: isScienceProgram(selectedProgram, selectedTrack) ? 'Science' : 'Arts & Commercial',
+      registrationFee: 15000,
+      acceptanceFee: 10000,
+      tuitionFee: tuition,
+      developmentPackage,
+      developmentPackageFee: developmentPackage ? 50000 : 0,
+      accommodationRequired: studyMode === 'onsite' && hostelRequired ? 'yes' : 'no',
+      accommodationFee: studyMode === 'onsite' && hostelRequired ? 100000 : 0,
       intendedUniversity, intendedDegree, alternativeCourse, jambStatus,
       parentName, parentRelationship, parentPhone, parentEmail,
-      hostelRequired, musicClasses, vocationalSkills, sportsAcademy,
+      hostelRequired: studyMode === 'onsite' && hostelRequired,
       notes: candidateNotes,
-      totalFees: calculateTotalFees()
+      totalFees: total
     });
     setSelectedFeesToPay({
       registration: true,
       acceptance: true,
-      tuition: false,
-      hostel: false,
-      music: false,
-      vocational: false,
-      sports: false
+      tuition: true,
+      devPackage: developmentPackage,
+      hostel: studyMode === 'onsite' && hostelRequired
     });
     setShowPaymentGateway(true);
   };
@@ -1033,6 +1062,7 @@ export default function App() {
           ...pendingPayload,
           paymentRef: reference,
           paymentAmount: calculateCurrentPaymentAmount(),
+          totalAmount: pendingPayload.totalFees,
           paymentStatus: calculateCurrentPaymentAmount() === pendingPayload.totalFees ? "Paid Full" : "Paid Partial"
         })
       });
@@ -1717,8 +1747,21 @@ export default function App() {
                                      </div>
                                    ) : (
                                      <div>
-                                       <span className="px-2 py-0.5 text-[9px] bg-slate-100 border border-slate-200 rounded font-bold uppercase mt-1 leading-none inline-block">{app.program}</span>
+                                       <div className="flex items-center gap-1.5 mt-1">
+                                         <span className="px-2 py-0.5 text-[9px] bg-slate-100 border border-slate-200 rounded font-bold uppercase leading-none inline-block">{app.program}</span>
+                                         {app.studyMode && (
+                                           <span className={`px-1.5 py-0.5 text-[8px] font-black uppercase rounded ${app.studyMode === 'online' ? 'bg-emerald-100 text-emerald-800' : 'bg-neutral-900 text-white'}`}>
+                                             {app.studyMode}
+                                           </span>
+                                         )}
+                                       </div>
                                        <p className="text-neutral-700 text-xs font-semibold mt-1 tracking-tight leading-none">{app.track}</p>
+                                       {app.developmentPackage && (
+                                         <span className="text-[9px] text-emerald-700 font-semibold block mt-0.5">+ Dev Package (₦50k)</span>
+                                       )}
+                                       {(app.accommodationRequired === 'yes' || app.accommodationFee) && (
+                                         <span className="text-[9px] text-sky-700 font-semibold block mt-0.5">+ Hostel (₦100k)</span>
+                                       )}
                                      </div>
                                    )}
                                  </td>
@@ -2719,28 +2762,185 @@ export default function App() {
             </p>
           </div>
 
-                    {/* NEW Pathways Selector Grid */}
+          {/* SECTION: CHOOSE YOUR STUDY MODE */}
+          <div id="study-mode-selector" className="max-w-5xl mx-auto w-full mb-10 text-left">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-neutral-200 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-100 pb-6 mb-6">
+                <div>
+                  <span className="text-[10px] font-mono font-bold tracking-widest text-[#138A36] uppercase bg-[#138A36]/10 px-3 py-1 rounded-full">
+                    Step 1: Choose Delivery Format
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight mt-2">
+                    Choose Your Study Mode
+                  </h3>
+                  <p className="text-xs text-neutral-500 mt-1">
+                    Select how you want to attend UNIVLOVE PREVARSITY. Pricing and curriculum delivery dynamically sync with your choice.
+                  </p>
+                </div>
+                
+                {/* Pill Switcher */}
+                <div className="inline-flex p-1 bg-neutral-100 rounded-2xl border border-neutral-200 self-start md:self-center">
+                  <button
+                    onClick={() => setStudyMode('onsite')}
+                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                      studyMode === 'onsite'
+                        ? 'bg-neutral-900 text-white shadow-md'
+                        : 'text-neutral-600 hover:text-neutral-900'
+                    }`}
+                  >
+                    🏢 On-Site
+                  </button>
+                  <button
+                    onClick={() => {
+                      setStudyMode('online');
+                      setHostelRequired(false);
+                    }}
+                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                      studyMode === 'online'
+                        ? 'bg-[#138A36] text-white shadow-md'
+                        : 'text-neutral-600 hover:text-neutral-900'
+                    }`}
+                  >
+                    💻 Online
+                  </button>
+                </div>
+              </div>
+
+              {/* Two Interactive Mode Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* ONSITE CARD */}
+                <div
+                  onClick={() => setStudyMode('onsite')}
+                  className={`p-6 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${
+                    studyMode === 'onsite'
+                      ? 'border-neutral-900 bg-neutral-50 shadow-md ring-1 ring-neutral-900'
+                      : 'border-neutral-200/80 bg-white hover:border-neutral-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-neutral-900 text-white">
+                      Physical Campus Experience
+                    </span>
+                    {studyMode === 'onsite' && (
+                      <span className="w-5 h-5 rounded-full bg-neutral-900 text-white flex items-center justify-center text-xs font-bold">✓</span>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-neutral-900">Onsite Programme</h4>
+                    <p className="text-xs text-neutral-600 mt-2 leading-relaxed">
+                      Physical classroom experience at our Ilesa centres, campus activities, hands-on lab sessions, and optional on-campus boarding accommodation.
+                    </p>
+                    <ul className="mt-4 space-y-1.5 text-xs text-neutral-700">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Daily classroom lectures & personal tutor mentorship</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Optional On-Campus Hostel Accommodation (₦100,000)</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Integrated Student Development Package (₦50,000)</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="mt-6 pt-4 border-t border-neutral-200/70 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-neutral-400 font-mono uppercase font-bold block">Tuition Rate</span>
+                      <span className="text-sm font-black text-neutral-900 font-mono">₦150k – ₦175k</span>
+                    </div>
+                    <span className={`text-xs font-bold ${studyMode === 'onsite' ? 'text-neutral-900' : 'text-neutral-400'}`}>
+                      {studyMode === 'onsite' ? '● Active Selection' : 'Select Onsite ➔'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* ONLINE CARD */}
+                <div
+                  onClick={() => {
+                    setStudyMode('online');
+                    setHostelRequired(false);
+                  }}
+                  className={`p-6 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${
+                    studyMode === 'online'
+                      ? 'border-[#138A36] bg-emerald-50/30 shadow-md ring-1 ring-[#138A36]'
+                      : 'border-neutral-200/80 bg-white hover:border-neutral-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[#138A36] text-white">
+                      Flexible Remote Learning
+                    </span>
+                    {studyMode === 'online' && (
+                      <span className="w-5 h-5 rounded-full bg-[#138A36] text-white flex items-center justify-center text-xs font-bold">✓</span>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-neutral-900">Online Programme</h4>
+                    <p className="text-xs text-neutral-600 mt-2 leading-relaxed">
+                      Structured remote learning environment for students who cannot attend physical classes. Learn from anywhere with top-tier digital resources.
+                    </p>
+                    <ul className="mt-4 space-y-1.5 text-xs text-neutral-700">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-[#138A36] shrink-0" />
+                        <span>Live interactive lectures, recorded archives & digital coursework</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-[#138A36] shrink-0" />
+                        <span>Online Student Development Package (₦50,000)</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-[#138A36] shrink-0" />
+                        <span>Dedicated online academic advising & university clearance</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="mt-6 pt-4 border-t border-neutral-200/70 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-neutral-400 font-mono uppercase font-bold block">Online Tuition Rate</span>
+                      <span className="text-sm font-black text-[#138A36] font-mono">₦100k – ₦125k</span>
+                    </div>
+                    <span className={`text-xs font-bold ${studyMode === 'online' ? 'text-[#138A36]' : 'text-neutral-400'}`}>
+                      {studyMode === 'online' ? '● Active Selection' : 'Select Online ➔'}
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {/* NEW Pathways Selector Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto w-full mb-12">
             {pathwaysConfig.map((pathway) => {
               const Icon = pathway.icon;
               const isActive = selectedPathwayId === pathway.id;
+              const sampleTuition = getPathwayTuition(pathway.title, pathway.subCategories[0] || '', studyMode);
 
               return (
-                <div key={pathway.id} className="flex flex-col gap-3">
+                <div key={pathway.id} className="flex flex-col gap-3 text-left">
                   <div 
                     onClick={() => setSelectedPathwayId(isActive ? null : pathway.id)}
                     className={`rounded-2xl p-6 border transition-all duration-300 cursor-pointer flex flex-col items-start gap-4 hover:shadow-lg ${isActive ? 'bg-neutral-50 shadow-md ring-2 ring-neutral-200 border-transparent' : 'bg-white border-neutral-200/80 hover:border-neutral-400'}`}
                     style={{ borderLeftColor: isActive ? pathway.color : undefined, borderLeftWidth: isActive ? '4px' : '1px' }}
                   >
-                    <div className="p-3 rounded-xl" style={{ backgroundColor: pathway.color + "18", color: pathway.color }}>
-                      <Icon className="w-6 h-6" />
+                    <div className="flex items-center justify-between w-full">
+                      <div className="p-3 rounded-xl" style={{ backgroundColor: pathway.color + "18", color: pathway.color }}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <span className="text-[11px] font-mono font-black text-neutral-800 bg-neutral-100 px-2.5 py-1 rounded-lg">
+                        {sampleTuition > 0 ? `₦${sampleTuition.toLocaleString()} Tuition` : 'Foundation'}
+                      </span>
                     </div>
                     <div>
                       <h3 className="font-bold text-neutral-900 text-sm">{pathway.title}</h3>
                       <p className="text-xs text-neutral-500 mt-2">{pathway.description}</p>
                     </div>
                     <div className="mt-2 text-[10px] font-bold tracking-wider uppercase flex items-center justify-between w-full" style={{ color: pathway.color }}>
-                      {isActive ? 'Hide Options ✕' : 'Explore Pathway ➔'}
+                      <span>Mode: {studyMode === 'online' ? 'Online' : 'Onsite'}</span>
+                      <span>{isActive ? 'Hide Options ✕' : 'Explore Pathway ➔'}</span>
                     </div>
                   </div>
 
@@ -2754,16 +2954,26 @@ export default function App() {
                         className="overflow-hidden"
                       >
                         <div className="flex flex-col gap-2 pl-4 border-l-2 border-neutral-100 ml-4 mb-4">
-                          {pathway.subCategories.map(sub => (
-                            <button
-                              key={sub}
-                              onClick={() => { selectPathway(pathway.title, sub); setSelectedPathwayId(null); }}
-                              className="text-left py-3 px-4 rounded-lg text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors flex items-center justify-between group bg-white border border-neutral-100 shadow-xs"
-                            >
-                              <span>{sub}</span>
-                              <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: pathway.color }} />
-                            </button>
-                          ))}
+                          {pathway.subCategories.map(sub => {
+                            const subTuition = getPathwayTuition(pathway.title, sub, studyMode);
+                            return (
+                              <button
+                                key={sub}
+                                onClick={() => { selectPathway(pathway.title, sub); setSelectedPathwayId(null); }}
+                                className="text-left py-3 px-4 rounded-lg text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors flex items-center justify-between group bg-white border border-neutral-100 shadow-xs cursor-pointer"
+                              >
+                                <div className="flex flex-col">
+                                  <span>{sub}</span>
+                                  {subTuition > 0 && (
+                                    <span className="text-[10px] text-neutral-400 font-mono">
+                                      {studyMode === 'online' ? 'Online' : 'Onsite'} Tuition: ₦{subTuition.toLocaleString()}
+                                    </span>
+                                  )}
+                                </div>
+                                <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" style={{ color: pathway.color }} />
+                              </button>
+                            );
+                          })}
                         </div>
                       </motion.div>
                     )}
@@ -2772,8 +2982,394 @@ export default function App() {
               );
             })}
           </div>
-</div>
+        </div>
 
+      </section>
+
+      {/* SECTION: MORE THAN ACADEMICS */}
+      <section id="more-than-academics" className="py-24 bg-white border-b border-neutral-200/60 relative overflow-hidden text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="max-w-3xl mx-auto text-center flex flex-col gap-4 mb-16">
+            <span className="text-xs font-mono font-bold tracking-widest text-[#138A36] uppercase bg-[#138A36]/10 px-3.5 py-1.5 rounded-full self-center">
+              Holistic Student Preparation
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-neutral-900">
+              MORE THAN ACADEMICS
+            </h2>
+            <p className="text-neutral-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+              <strong>UNIVLOVE PREVARSITY</strong> is designed to prepare students not only for university admission, but also for life beyond the classroom. Through our Student Development Package, students can develop practical digital, vocational, creative and physical skills alongside their academic pathway.
+            </p>
+          </div>
+
+          {/* Unified Package Feature Box */}
+          <div className="bg-gradient-to-br from-neutral-900 to-neutral-950 text-white rounded-3xl p-8 sm:p-12 shadow-2xl border border-neutral-800 relative overflow-hidden mb-12">
+            <div className="absolute right-0 top-0 w-96 h-96 bg-[#138A36]/15 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-b border-neutral-800 pb-8 mb-8 relative z-10">
+              <div>
+                <span className="text-xs font-mono uppercase font-bold text-emerald-400 tracking-wider">
+                  One Unified Comprehensive Package
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tight mt-1 text-white">
+                  Student Development Package — ₦50,000
+                </h3>
+                <p className="text-xs text-neutral-400 mt-1 max-w-xl">
+                  Covers all four areas below as <strong>one unified ₦50,000 package</strong>. Practical training designed to equip every scholar with global life capabilities.
+                </p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 shrink-0 text-left">
+                <span className="text-[10px] uppercase font-mono text-neutral-400 font-bold block">Package Fee</span>
+                <span className="text-3xl font-mono font-black text-emerald-400">₦50,000</span>
+                <span className="text-[10px] text-neutral-400 block mt-0.5">Includes all 4 development pillars</span>
+              </div>
+            </div>
+
+            {/* 4 Pillars Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+              
+              {/* Pillar 1: Digital & Technology */}
+              <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col justify-between hover:bg-white/10 transition-all">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 text-2xl">
+                    💻
+                  </div>
+                  <h4 className="text-base font-bold text-white">DIGITAL & TECHNOLOGY SKILLS</h4>
+                  <p className="text-xs text-neutral-300 mt-2.5 leading-relaxed">
+                    Practical digital and technology training designed to equip students with relevant modern skills (Full-Stack Coding, AI workflows, Cybersecurity & Cloud tools).
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-white/10 text-[10px] font-mono text-emerald-400 font-semibold uppercase">
+                  ✓ Practical Tech Projects
+                </div>
+              </div>
+
+              {/* Pillar 2: Vocational Skills */}
+              <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col justify-between hover:bg-white/10 transition-all">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-4 text-2xl">
+                    🛠️
+                  </div>
+                  <h4 className="text-base font-bold text-white">VOCATIONAL SKILLS</h4>
+                  <p className="text-xs text-neutral-300 mt-2.5 leading-relaxed">
+                    Practical vocational and entrepreneurial skill development (Solar Staging & Inverters, Agritech Enterprise, and Bespoke Tailoring Craftsmanship).
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-white/10 text-[10px] font-mono text-amber-400 font-semibold uppercase">
+                  ✓ Entrepreneurial Guilds
+                </div>
+              </div>
+
+              {/* Pillar 3: Music & Arts */}
+              <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col justify-between hover:bg-white/10 transition-all">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4 text-2xl">
+                    🎨
+                  </div>
+                  <h4 className="text-base font-bold text-white">MUSIC & ARTS ACADEMY</h4>
+                  <p className="text-xs text-neutral-300 mt-2.5 leading-relaxed">
+                    Creative development through music production, studio sound staging, creative fine arts, and related performing arts activities.
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-white/10 text-[10px] font-mono text-purple-400 font-semibold uppercase">
+                  ✓ Creative Visual & Audio Reels
+                </div>
+              </div>
+
+              {/* Pillar 4: Sports Academy */}
+              <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col justify-between hover:bg-white/10 transition-all">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-4 text-2xl">
+                    ⚽
+                  </div>
+                  <h4 className="text-base font-bold text-white">SPORTS ACADEMY</h4>
+                  <p className="text-xs text-neutral-300 mt-2.5 leading-relaxed">
+                    Sports, physical agility optimization, Table Tennis neurological drills, athletic recreation, and collegiate scholarship scout matching.
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-white/10 text-[10px] font-mono text-sky-400 font-semibold uppercase">
+                  ✓ Athletic Draft Profiles
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* SECTION: LEARN FROM ANYWHERE (ONLINE PROGRAMME POSITIONING) */}
+      <section id="learn-from-anywhere" className="py-24 bg-[#FAF9F6] border-b border-neutral-200/60 relative overflow-hidden text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <div className="lg:col-span-6 flex flex-col gap-6">
+              <span className="text-xs font-mono font-bold tracking-widest text-[#138A36] uppercase bg-[#138A36]/10 px-3.5 py-1.5 rounded-full self-start">
+                Flexible Remote Learning
+              </span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-neutral-900">
+                LEARN FROM ANYWHERE
+              </h2>
+              <p className="text-neutral-600 text-sm sm:text-base leading-relaxed">
+                The <strong>UNIVLOVE Online Programme</strong> provides a flexible alternative for students who cannot attend physical classes. Students can access structured academic learning remotely while participating in relevant digital, vocational, creative and developmental activities through our virtual learning environment.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <div className="p-4 rounded-2xl bg-white border border-neutral-200/80 shadow-2xs">
+                  <span className="text-lg">🌐</span>
+                  <h4 className="text-sm font-bold text-neutral-900 mt-1">Flexibility & Accessibility</h4>
+                  <p className="text-xs text-neutral-500 mt-1">Study from home or any location on PC, tablet, or smartphone.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-white border border-neutral-200/80 shadow-2xs">
+                  <span className="text-lg">📚</span>
+                  <h4 className="text-sm font-bold text-neutral-900 mt-1">Structured Preparation</h4>
+                  <p className="text-xs text-neutral-500 mt-1">Full JUPEB and pre-degree syllabus taught by veteran subject masters.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-white border border-neutral-200/80 shadow-2xs">
+                  <span className="text-lg">💻</span>
+                  <h4 className="text-sm font-bold text-neutral-900 mt-1">Practical Digital Skills</h4>
+                  <p className="text-xs text-neutral-500 mt-1">Online software and technology training with real coding deliverables.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-white border border-neutral-200/80 shadow-2xs">
+                  <span className="text-lg">🎓</span>
+                  <h4 className="text-sm font-bold text-neutral-900 mt-1">Direct University Entry</h4>
+                  <p className="text-xs text-neutral-500 mt-1">Guidance and transcript processing into 200 Level university degrees.</p>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-wrap gap-4 items-center">
+                <button
+                  onClick={() => {
+                    setStudyMode('online');
+                    setHostelRequired(false);
+                    scrollToView("admissions-portal");
+                  }}
+                  className="px-6 py-3.5 bg-[#138A36] hover:bg-[#0f732d] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 cursor-pointer inline-flex items-center gap-2"
+                >
+                  <span>Apply for Online Programme</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    setStudyMode('onsite');
+                    scrollToView("admissions-portal");
+                  }}
+                  className="px-6 py-3.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                >
+                  View Onsite Option
+                </button>
+              </div>
+            </div>
+
+            {/* Right side Visual Pricing Breakdown Card */}
+            <div className="lg:col-span-6 bg-white rounded-3xl p-8 border border-neutral-200 shadow-xl">
+              <div className="flex items-center justify-between border-b border-neutral-100 pb-4 mb-6">
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase text-neutral-400 tracking-wider">Pricing Architecture</span>
+                  <h3 className="text-lg font-black text-neutral-900">Online Fee Structure</h3>
+                </div>
+                <span className="px-3 py-1 bg-emerald-50 text-[#138A36] font-mono text-[10px] font-bold uppercase rounded-lg border border-emerald-200">
+                  Fixed & Transparent
+                </span>
+              </div>
+
+              <div className="space-y-4 text-xs text-neutral-700">
+                <div className="flex justify-between items-center py-2 border-b border-neutral-100">
+                  <span className="font-medium">Online Registration Fee</span>
+                  <span className="font-mono font-bold text-neutral-900">₦15,000</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-neutral-100">
+                  <span className="font-medium">Online Acceptance Fee</span>
+                  <span className="font-mono font-bold text-neutral-900">₦10,000</span>
+                </div>
+                
+                <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-100 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-neutral-900">Online Tuition — Science</span>
+                    <span className="font-mono font-bold text-[#138A36]">₦125,000</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500">
+                    Registration (₦15k) + Acceptance (₦10k) + Tuition (₦125k) = <strong className="text-neutral-900">₦150,000 Base</strong>
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-100 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-neutral-900">Online Tuition — Arts & Commercial</span>
+                    <span className="font-mono font-bold text-[#138A36]">₦100,000</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500">
+                    Registration (₦15k) + Acceptance (₦10k) + Tuition (₦100k) = <strong className="text-neutral-900">₦125,000 Base</strong>
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-100 space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-neutral-900">Online Student Development Package</span>
+                    <span className="font-mono font-bold text-[#138A36]">₦50,000</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500">
+                    Access to Digital, Vocational, Music/Creative Arts, and Wellness resources.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* SECTION: 3-CATEGORY PRICING UI PRESENTATION */}
+      <section id="pricing-breakdown" className="py-24 bg-white border-b border-neutral-200/60 text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="max-w-3xl mx-auto text-center flex flex-col gap-3 mb-16">
+            <span className="text-xs font-mono font-bold tracking-widest text-[#138A36] uppercase bg-[#138A36]/10 px-3.5 py-1.5 rounded-full self-center">
+              Clear & Transparent Fee Breakdown
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-neutral-900">
+              Three Distinct Fee Categories
+            </h2>
+            <p className="text-neutral-500 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              No hidden costs or confusing bundles. Review the three clear components of the UNIVLOVE PREVARSITY structure.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Category 1: Academic Programme */}
+            <div className="p-8 rounded-3xl bg-neutral-50 border border-neutral-200 flex flex-col justify-between hover:border-neutral-300 transition-all shadow-xs">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-neutral-900 text-white flex items-center justify-center text-xl font-bold mb-6">
+                  1
+                </div>
+                <span className="text-[10px] font-mono font-bold uppercase text-neutral-400 tracking-wider block">Category 1</span>
+                <h3 className="text-xl font-black text-neutral-900 mt-1">ACADEMIC PROGRAMME</h3>
+                <p className="text-xs text-neutral-500 mt-2 leading-relaxed">
+                  The selected Prevarsity/JUPEB academic pathway, core lectures, laboratory exercises, and university admission preparation.
+                </p>
+
+                <div className="mt-6 space-y-3 pt-6 border-t border-neutral-200/70 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Onsite Science Tuition</span>
+                    <span className="font-mono font-bold text-neutral-900">₦175,000</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Onsite Arts/Comm Tuition</span>
+                    <span className="font-mono font-bold text-neutral-900">₦150,000</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Online Science Tuition</span>
+                    <span className="font-mono font-bold text-[#138A36]">₦125,000</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Online Arts/Comm Tuition</span>
+                    <span className="font-mono font-bold text-[#138A36]">₦100,000</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-neutral-200/40 text-[11px] text-neutral-400">
+                    <span>Registration + Acceptance</span>
+                    <span className="font-mono">₦15k + ₦10k</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => scrollToView("study-mode-selector")}
+                className="mt-8 w-full py-3 bg-neutral-900 hover:bg-black text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer text-center"
+              >
+                Select Academic Path ➔
+              </button>
+            </div>
+
+            {/* Category 2: Student Development Package */}
+            <div className="p-8 rounded-3xl bg-emerald-50/40 border-2 border-[#138A36] flex flex-col justify-between shadow-md relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-[#138A36] text-white text-[9px] font-mono font-bold uppercase px-3 py-1 rounded-bl-xl tracking-wider">
+                All 4 Pillars Included
+              </div>
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-[#138A36] text-white flex items-center justify-center text-xl font-bold mb-6">
+                  2
+                </div>
+                <span className="text-[10px] font-mono font-bold uppercase text-[#138A36] tracking-wider block">Category 2</span>
+                <h3 className="text-xl font-black text-neutral-900 mt-1">STUDENT DEVELOPMENT</h3>
+                <p className="text-xs text-neutral-600 mt-2 leading-relaxed">
+                  One complete <strong>₦50,000 package</strong> covering all four personal, practical, creative, and physical skill development areas.
+                </p>
+
+                <div className="mt-6 space-y-2.5 pt-6 border-t border-emerald-200 text-xs text-neutral-700">
+                  <div className="flex items-center gap-2">
+                    <span className="text-emerald-700">💻</span>
+                    <span>Digital & Technology Skills</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-700">🛠️</span>
+                    <span>Vocational & Entrepreneurial Skills</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-purple-700">🎨</span>
+                    <span>Music & Arts Academy</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sky-700">⚽</span>
+                    <span>Sports Academy & Leadership</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-emerald-200 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-mono uppercase text-neutral-400 font-bold block">Package Total</span>
+                  <span className="text-2xl font-mono font-black text-[#138A36]">₦50,000</span>
+                </div>
+                <button
+                  onClick={() => scrollToView("admissions-portal")}
+                  className="px-4 py-2.5 bg-[#138A36] hover:bg-[#0f732d] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                >
+                  Enroll With Package
+                </button>
+              </div>
+            </div>
+
+            {/* Category 3: Accommodation */}
+            <div className="p-8 rounded-3xl bg-neutral-50 border border-neutral-200 flex flex-col justify-between hover:border-neutral-300 transition-all shadow-xs">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-neutral-900 text-white flex items-center justify-center text-xl font-bold mb-6">
+                  3
+                </div>
+                <span className="text-[10px] font-mono font-bold uppercase text-neutral-400 tracking-wider block">Category 3</span>
+                <h3 className="text-xl font-black text-neutral-900 mt-1">ACCOMMODATION</h3>
+                <p className="text-xs text-neutral-500 mt-2 leading-relaxed">
+                  Optional on-campus boarding for onsite students. 24/7 security, continuous solar power grid, and study rooms.
+                </p>
+
+                <div className="mt-6 space-y-3 pt-6 border-t border-neutral-200/70 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-700 font-medium">When Selected (Onsite)</span>
+                    <span className="font-mono font-bold text-neutral-900">₦100,000</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-500">When Not Selected</span>
+                    <span className="font-mono font-bold text-neutral-400">₦0</span>
+                  </div>
+                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-[11px] leading-relaxed mt-2">
+                    <strong>Important:</strong> Feeding is NOT included in the accommodation fee. Accommodation is primarily relevant to onsite students.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => scrollToView("boarding-section")}
+                className="mt-8 w-full py-3 bg-neutral-900 hover:bg-black text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer text-center"
+              >
+                View Hostel Lodges ➔
+              </button>
+            </div>
+
+          </div>
+
+        </div>
       </section>
 
       {/* Deep-Dive Study Abroad Interactive Pathways Section - Cinematic Experience */}
@@ -3057,7 +3653,7 @@ export default function App() {
                     </div>
                     <div className="p-3 bg-white border border-slate-200/80 rounded-xl font-mono text-[10px] leading-relaxed text-slate-700 w-full text-left">
                       <span className="text-[9px] text-amber-700 font-extrabold uppercase">BOARD REGISTRY LOG:</span> 
-                      <br />"Pre-varsity direct credentials, student profile, tracks & digital signatures have been successfully catalogued."
+                      <br />"Pre-varsity direct credentials, student profile, study mode ({studyMode.toUpperCase()}), tracks & digital signatures have been successfully catalogued."
                     </div>
                     <button 
                       onClick={() => setFormSubmitted(false)}
@@ -3090,13 +3686,21 @@ export default function App() {
                         <span className="font-mono text-neutral-700 truncate max-w-[200px]">{pendingPayload.email}</span>
                       </div>
                       <div className="flex justify-between border-b border-neutral-100 pb-2">
-                        <span className="text-neutral-400 font-medium font-sans">Applied Track:</span>
-                        <span className="font-extrabold text-neutral-800 text-[11px] truncate max-w-[200px]">{pendingPayload.program}</span>
+                        <span className="text-neutral-400 font-medium font-sans">Study Mode:</span>
+                        <span className="font-extrabold text-neutral-900 uppercase font-mono text-[11px] px-2 py-0.5 rounded bg-neutral-100">
+                          {pendingPayload.studyMode === 'online' ? '💻 Online Programme' : '🏢 Onsite Programme'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-b border-neutral-100 pb-2">
+                        <span className="text-neutral-400 font-medium font-sans">Applied Pathway:</span>
+                        <span className="font-extrabold text-neutral-800 text-[11px] truncate max-w-[200px]">
+                          {pendingPayload.program} {pendingPayload.track ? `(${pendingPayload.track})` : ''}
+                        </span>
                       </div>
                       
                       {/* Cost Invoice Breakdown */}
                       <div className="bg-white p-4 rounded-2xl border border-neutral-200/60 mt-2 flex flex-col gap-0.5">
-                        <h4 className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-1.5 px-1">Select Fees to Remit</h4>
+                        <h4 className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-1.5 px-1">Fee Itemization</h4>
                         
                         <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-neutral-50 p-1.5 rounded-lg transition-colors">
                           <div className="flex items-center gap-2">
@@ -3117,50 +3721,30 @@ export default function App() {
                         <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-neutral-50 p-1.5 rounded-lg transition-colors">
                           <div className="flex items-center gap-2">
                             <input type="checkbox" checked={selectedFeesToPay.tuition} onChange={() => toggleFee('tuition')} className="accent-[#138A36] w-3.5 h-3.5 rounded-sm" />
-                            <span>Pathway Tuition</span>
+                            <span>Academic Tuition ({pendingPayload.studyMode === 'online' ? 'Online' : 'Onsite'})</span>
                           </div>
                           <span className={"font-mono font-semibold " + (selectedFeesToPay.tuition ? "text-neutral-900" : "text-neutral-400")}>
-                            ₦{(pendingPayload.totalFees - 25000 - (pendingPayload.hostelRequired ? 100000 : 0) - (pendingPayload.musicClasses ? 30000 : 0) - (pendingPayload.vocationalSkills ? 30000 : 0) - (pendingPayload.sportsAcademy ? 30000 : 0)).toLocaleString()}
+                            ₦{(pendingPayload.tuitionFee || 0).toLocaleString()}
                           </span>
                         </label>
 
-                        {pendingPayload.hostelRequired && (
+                        {pendingPayload.developmentPackage && (
+                          <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-emerald-50/50 p-1.5 rounded-lg transition-colors">
+                            <div className="flex items-center gap-2">
+                              <input type="checkbox" checked={selectedFeesToPay.devPackage} onChange={() => toggleFee('devPackage')} className="accent-[#138A36] w-3.5 h-3.5 rounded-sm" />
+                              <span className="text-[#138A36] font-semibold">Student Development Package</span>
+                            </div>
+                            <span className={"font-mono font-semibold " + (selectedFeesToPay.devPackage ? "text-[#138A36]" : "text-neutral-400")}>₦50,000</span>
+                          </label>
+                        )}
+
+                        {pendingPayload.studyMode === 'onsite' && pendingPayload.hostelRequired && (
                           <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-sky-50 p-1.5 rounded-lg transition-colors">
                             <div className="flex items-center gap-2">
                               <input type="checkbox" checked={selectedFeesToPay.hostel} onChange={() => toggleFee('hostel')} className="accent-sky-500 w-3.5 h-3.5 rounded-sm" />
-                              <span className="text-sky-600 font-medium">Hostel Accommodation</span>
+                              <span className="text-sky-700 font-semibold">Hostel Accommodation (Feeding excluded)</span>
                             </div>
                             <span className={"font-mono font-semibold " + (selectedFeesToPay.hostel ? "text-sky-700" : "text-sky-300")}>₦100,000</span>
-                          </label>
-                        )}
-                        
-                        {pendingPayload.musicClasses && (
-                          <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-amber-50 p-1.5 rounded-lg transition-colors">
-                            <div className="flex items-center gap-2">
-                              <input type="checkbox" checked={selectedFeesToPay.music} onChange={() => toggleFee('music')} className="accent-amber-500 w-3.5 h-3.5 rounded-sm" />
-                              <span className="text-amber-600 font-medium">Music Classes</span>
-                            </div>
-                            <span className={"font-mono font-semibold " + (selectedFeesToPay.music ? "text-amber-700" : "text-amber-300")}>₦30,000</span>
-                          </label>
-                        )}
-                        
-                        {pendingPayload.vocationalSkills && (
-                          <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-amber-50 p-1.5 rounded-lg transition-colors">
-                            <div className="flex items-center gap-2">
-                              <input type="checkbox" checked={selectedFeesToPay.vocational} onChange={() => toggleFee('vocational')} className="accent-amber-500 w-3.5 h-3.5 rounded-sm" />
-                              <span className="text-amber-600 font-medium">Vocational Skills</span>
-                            </div>
-                            <span className={"font-mono font-semibold " + (selectedFeesToPay.vocational ? "text-amber-700" : "text-amber-300")}>₦30,000</span>
-                          </label>
-                        )}
-                        
-                        {pendingPayload.sportsAcademy && (
-                          <label className="flex justify-between text-[11px] text-neutral-600 items-center cursor-pointer hover:bg-amber-50 p-1.5 rounded-lg transition-colors">
-                            <div className="flex items-center gap-2">
-                              <input type="checkbox" checked={selectedFeesToPay.sports} onChange={() => toggleFee('sports')} className="accent-amber-500 w-3.5 h-3.5 rounded-sm" />
-                              <span className="text-amber-600 font-medium">Sports Academy</span>
-                            </div>
-                            <span className={"font-mono font-semibold " + (selectedFeesToPay.sports ? "text-amber-700" : "text-amber-300")}>₦30,000</span>
                           </label>
                         )}
                         
@@ -3172,7 +3756,7 @@ export default function App() {
                         
                         <div className="flex justify-between text-sm text-neutral-950 font-black px-1.5">
                           <span>Total Amount to Remit</span>
-                          <span className="text-emerald-600">₦{calculateCurrentPaymentAmount().toLocaleString()}</span>
+                          <span className="text-emerald-600 font-mono font-black">₦{calculateCurrentPaymentAmount().toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
@@ -3196,24 +3780,19 @@ export default function App() {
                           </>
                         )}
                       </button>
-
-
-                      <button 
-                        onClick={() => {
-                          setShowPaymentGateway(false);
-                          setPendingPayload(null);
-                        }}
-                        disabled={isPaying || submittingApp}
-                        className="text-neutral-400 hover:text-neutral-600 text-[10px] font-mono tracking-widest font-bold text-center underline cursor-pointer hover:no-underline transition-all mt-1 uppercase"
-                      >
-                        ✕ Cancel & Edit Credentials
-                      </button>
+                      
+                      <div className="flex items-center justify-between text-[10px] text-neutral-400 px-1 font-mono">
+                        <span>🔒 AES-256 TLS Encrypted</span>
+                        <button onClick={() => setShowPaymentGateway(false)} className="text-neutral-500 hover:text-neutral-800 underline font-sans font-bold cursor-pointer">
+                          ← Edit Application Details
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
-                                    <div className="flex flex-col h-[600px] bg-neutral-50 rounded-2xl border border-neutral-100 overflow-hidden relative shadow-inner">
+                  <div className="flex flex-col h-[520px] bg-neutral-50/50 rounded-2xl border border-neutral-200/80 overflow-hidden text-neutral-800">
                     {/* Chat Header */}
-                    <div className="bg-white px-6 py-4 border-b border-neutral-200 shadow-sm z-10 flex items-center justify-between">
+                    <div className="bg-white px-6 py-4 border-b border-neutral-200 flex items-center justify-between shadow-xs">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 flex items-center justify-center text-white shadow-sm">
                           <Bot className="w-5 h-5" />
@@ -3247,6 +3826,7 @@ export default function App() {
                                 setSchoolAttended('');
                                 setOLevelStatus('');
                                 setSittings('1');
+                                setStudyMode('onsite');
                                 setSelectedProgram('');
                                 setSelectedTrack('');
                                 setIntendedUniversity('');
@@ -3257,10 +3837,8 @@ export default function App() {
                                 setParentRelationship('');
                                 setParentPhone('');
                                 setParentEmail('');
+                                setDevelopmentPackage(true);
                                 setHostelRequired(false);
-                                setMusicClasses(false);
-                                setVocationalSkills(false);
-                                setSportsAcademy(false);
                                 setCandidateNotes('');
                               }
                             }}
@@ -3285,13 +3863,13 @@ export default function App() {
                             <div className="flex items-start gap-3">
                               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
                               <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
-                                <p>Hi there! 👋 Let's get your application ready. It's completely stress-free.</p>
-                                <p className="mt-2 font-medium">First, what's your full name? (Surname first, please)</p>
+                                <p>Hi there! 👋 Let's get your application ready for <strong>UNIVLOVE PREVARSITY</strong>.</p>
+                                <p className="mt-2 font-medium">First, what is your full name? (Surname first, please)</p>
                               </div>
                             </div>
                             {chatStep === 0 && (
                               <div className="ml-11 flex items-center gap-2">
-                                <input type="text" placeholder="Type your full name..." value={fullName} onChange={e => setFullName(e.target.value)} onKeyDown={e => e.key === 'Enter' && fullName.trim() && setChatStep(1)} className="flex-1 p-3.5 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-[#138A36] shadow-sm text-neutral-900" />
+                                <input type="text" placeholder="Surname First Middle..." value={fullName} onChange={e => setFullName(e.target.value)} onKeyDown={e => e.key === 'Enter' && fullName.trim() && setChatStep(1)} className="flex-1 p-3.5 border border-neutral-200 rounded-xl bg-white text-sm focus:outline-none focus:border-[#138A36] shadow-sm text-neutral-900" />
                                 <button onClick={() => fullName.trim() && setChatStep(1)} className={"p-3.5 rounded-xl transition-colors " + (fullName.trim() ? "bg-[#138A36] text-white shadow-md hover:bg-[#0f732d]" : "bg-neutral-200 text-neutral-400 cursor-not-allowed")}><Send className="w-4 h-4" /></button>
                               </div>
                             )}
@@ -3315,7 +3893,7 @@ export default function App() {
                               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
                               <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
                                 <p>Nice to meet you, <strong className="text-neutral-900">{fullName.split(' ')[0]}</strong>! ✨</p>
-                                <p className="mt-2 font-medium">How can we reach you? We need your email, phone, and WhatsApp numbers.</p>
+                                <p className="mt-2 font-medium">How can we reach you? Please provide your email, phone, and WhatsApp numbers.</p>
                               </div>
                             </div>
                             {chatStep === 1 && (
@@ -3340,30 +3918,66 @@ export default function App() {
                         )}
                       </AnimatePresence>
 
-                      {/* Step 2: Demographics */}
+                      {/* Step 2: Choose Study Mode */}
                       <AnimatePresence>
                         {chatStep >= 2 && (
                           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
                             <div className="flex items-start gap-3">
                               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
                               <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
-                                <p className="font-medium">Got it! Just a couple quick details for your profile. When were you born, and what is your gender?</p>
+                                <p className="font-medium">Which study mode would you like to enroll for?</p>
+                                <p className="text-xs text-neutral-500 mt-1">Select Onsite for physical classes in Ilesa, or Online for flexible remote learning.</p>
                               </div>
                             </div>
                             {chatStep === 2 && (
                               <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
-                                <input type="date" value={dob} onChange={e => setDob(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
-                                <select value={gender} onChange={e => setGender(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]">
-                                  <option value="">Select Gender</option><option>Male</option><option>Female</option>
-                                </select>
-                                <button onClick={() => (dob && gender) && setChatStep(3)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((dob && gender) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Next</button>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setStudyMode('onsite')}
+                                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                                      studyMode === 'onsite'
+                                        ? 'border-neutral-900 bg-neutral-900 text-white shadow-md'
+                                        : 'border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-neutral-300'
+                                    }`}
+                                  >
+                                    <div className="text-base mb-1">🏢</div>
+                                    <div className="text-xs font-black">Onsite Programme</div>
+                                    <div className={`text-[10px] mt-1 ${studyMode === 'onsite' ? 'text-neutral-300' : 'text-neutral-400'}`}>
+                                      Physical classrooms in Ilesa
+                                    </div>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setStudyMode('online');
+                                      setHostelRequired(false);
+                                    }}
+                                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                                      studyMode === 'online'
+                                        ? 'border-[#138A36] bg-[#138A36] text-white shadow-md'
+                                        : 'border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-neutral-300'
+                                    }`}
+                                  >
+                                    <div className="text-base mb-1">💻</div>
+                                    <div className="text-xs font-black">Online Programme</div>
+                                    <div className={`text-[10px] mt-1 ${studyMode === 'online' ? 'text-emerald-100' : 'text-neutral-400'}`}>
+                                      Flexible remote learning
+                                    </div>
+                                  </button>
+                                </div>
+
+                                <button onClick={() => setChatStep(3)} className="w-full p-3 rounded-xl font-bold bg-neutral-900 text-white shadow-md transition-all cursor-pointer">
+                                  Continue with {studyMode === 'online' ? 'Online' : 'Onsite'} Mode
+                                </button>
                                 <div className="text-center mt-1"><button onClick={() => setChatStep(1)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
                               </div>
                             )}
                             {chatStep > 2 && (
                               <div className="flex self-end items-center gap-2 max-w-[85%]">
                                 <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
-                                  {dob} • {gender}
+                                  {studyMode === 'online' ? '💻 Online Programme' : '🏢 Onsite Programme'}
                                 </div>
                                 <button onClick={() => setChatStep(2)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
                               </div>
@@ -3372,32 +3986,38 @@ export default function App() {
                         )}
                       </AnimatePresence>
 
-                      {/* Step 3: Location */}
+                      {/* Step 3: Demographics & Location */}
                       <AnimatePresence>
                         {chatStep >= 3 && (
                           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
                             <div className="flex items-start gap-3">
                               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
                               <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
-                                <p className="font-medium">Awesome. Where do you currently live?</p>
+                                <p className="font-medium">Got it! Where are you located, and what are your demographic details?</p>
                               </div>
                             </div>
                             {chatStep === 3 && (
                               <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <input type="date" value={dob} onChange={e => setDob(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                  <select value={gender} onChange={e => setGender(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]">
+                                    <option value="">Gender</option><option>Male</option><option>Female</option>
+                                  </select>
+                                </div>
                                 <input type="text" placeholder="Street Address" value={address} onChange={e => setAddress(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
                                 <div className="grid grid-cols-2 gap-2">
                                   <input type="text" placeholder="City" value={city} onChange={e => setCity(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
                                   <input type="text" placeholder="State" value={stateLoc} onChange={e => setStateLoc(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
                                 </div>
                                 <input type="text" placeholder="Country" value={country} onChange={e => setCountry(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
-                                <button onClick={() => (address && city) && setChatStep(4)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((address && city) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Continue</button>
+                                <button onClick={() => (dob && gender && city) && setChatStep(4)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((dob && gender && city) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Continue</button>
                                 <div className="text-center mt-1"><button onClick={() => setChatStep(2)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
                               </div>
                             )}
                             {chatStep > 3 && (
                               <div className="flex self-end items-center gap-2 max-w-[85%]">
                                 <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
-                                  {city}, {stateLoc}, {country}
+                                  {gender} • {city}, {stateLoc}
                                 </div>
                                 <button onClick={() => setChatStep(3)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
                               </div>
@@ -3406,7 +4026,7 @@ export default function App() {
                         )}
                       </AnimatePresence>
 
-                      {/* Step 4: Academic */}
+                      {/* Step 4: Academic Background */}
                       <AnimatePresence>
                         {chatStep >= 4 && (
                           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
@@ -3424,7 +4044,7 @@ export default function App() {
                                 <select value={oLevelStatus} onChange={e => setOLevelStatus(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]">
                                   <option value="">O-Level Status</option><option>Completed - WAEC</option><option>Completed - NECO</option><option>Awaiting Results</option>
                                 </select>
-                                <button onClick={() => (currentLevel && schoolAttended) && setChatStep(5)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((currentLevel && schoolAttended) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Looks good</button>
+                                <button onClick={() => (currentLevel && schoolAttended) && setChatStep(5)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((currentLevel && schoolAttended) ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Next: Pathway</button>
                                 <div className="text-center mt-1"><button onClick={() => setChatStep(3)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
                               </div>
                             )}
@@ -3440,29 +4060,62 @@ export default function App() {
                         )}
                       </AnimatePresence>
 
-                      {/* Step 5: Pathway confirmation */}
+                      {/* Step 5: Pathway Selection */}
                       <AnimatePresence>
                         {chatStep >= 5 && (
                           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
                             <div className="flex items-start gap-3">
                               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
                               <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
-                                <p>Almost done! 🚀 Let's confirm your selected pathway and intended university.</p>
+                                <p>Select your intended Prevarsity Academic Pathway. 🚀</p>
                               </div>
                             </div>
                             {chatStep === 5 && (
                               <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
-                                {!selectedProgram ? (
-                                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs text-center font-medium">Please select a pathway from the grid above first!</div>
-                                ) : (
-                                  <div className="p-3 bg-[#138A36]/5 border border-[#138A36]/20 rounded-xl">
-                                    <div className="text-[10px] text-neutral-500 font-bold uppercase mb-1">Selected Pathway:</div>
-                                    <div className="font-bold text-neutral-900">{selectedProgram}</div>
-                                    <div className="text-xs text-neutral-600 mt-0.5">↳ {selectedTrack}</div>
+                                <div>
+                                  <label className="block text-[10px] font-bold text-neutral-500 uppercase mb-1">Programme Pathway</label>
+                                  <select
+                                    value={selectedProgram}
+                                    onChange={(e) => {
+                                      setSelectedProgram(e.target.value);
+                                      const found = pathwaysConfig.find(p => p.title === e.target.value);
+                                      if (found && found.subCategories.length > 0) {
+                                        setSelectedTrack(found.subCategories[0]);
+                                      }
+                                    }}
+                                    className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-xs font-semibold text-neutral-900 focus:outline-none focus:border-[#138A36]"
+                                  >
+                                    <option value="">Select Academic Pathway</option>
+                                    {pathwaysConfig.map(p => (
+                                      <option key={p.id} value={p.title}>{p.title}</option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                {selectedProgram && (
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-neutral-500 uppercase mb-1">Track / Specialization</label>
+                                    <select
+                                      value={selectedTrack}
+                                      onChange={(e) => setSelectedTrack(e.target.value)}
+                                      className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-xs font-semibold text-neutral-900 focus:outline-none focus:border-[#138A36]"
+                                    >
+                                      {pathwaysConfig.find(p => p.title === selectedProgram)?.subCategories.map(sub => (
+                                        <option key={sub} value={sub}>{sub}</option>
+                                      ))}
+                                    </select>
+
+                                    <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 mt-2 flex justify-between items-center text-xs">
+                                      <span className="text-neutral-500">{studyMode === 'online' ? 'Online' : 'Onsite'} Tuition:</span>
+                                      <span className="font-mono font-bold text-[#138A36]">
+                                        ₦{getPathwayTuition(selectedProgram, selectedTrack, studyMode).toLocaleString()}
+                                      </span>
+                                    </div>
                                   </div>
                                 )}
+
                                 <input type="text" placeholder="Intended University (Optional)" value={intendedUniversity} onChange={e => setIntendedUniversity(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
-                                <input type="text" placeholder="Intended Degree (Optional)" value={intendedDegree} onChange={e => setIntendedDegree(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                
                                 <button onClick={() => selectedProgram && setChatStep(6)} className={"w-full p-3 rounded-xl font-bold transition-all " + (selectedProgram ? "bg-neutral-900 text-white shadow-md" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Confirm Pathway</button>
                                 <div className="text-center mt-1"><button onClick={() => setChatStep(4)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
                               </div>
@@ -3470,7 +4123,7 @@ export default function App() {
                             {chatStep > 5 && (
                               <div className="flex self-end items-center gap-2 max-w-[85%]">
                                 <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
-                                  {selectedProgram}
+                                  {selectedProgram} ({selectedTrack})
                                 </div>
                                 <button onClick={() => setChatStep(5)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
                               </div>
@@ -3479,36 +4132,57 @@ export default function App() {
                         )}
                       </AnimatePresence>
 
-                      {/* Step 6: Parent Info & Extras */}
+                      {/* Step 6: Student Development Package, Accommodation & Parent Info */}
                       <AnimatePresence>
                         {chatStep >= 6 && (
                           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3">
                             <div className="flex items-start gap-3">
                               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
                               <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
-                                <p>Last step! We just need contact details for a Parent or Guardian, and you can select any extra services (like Accommodation).</p>
+                                <p>Almost finished! Please select your developmental packages and enter Guardian information.</p>
                               </div>
                             </div>
                             {chatStep === 6 && (
                               <div className="ml-11 flex flex-col gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm max-w-sm">
-                                <div className="text-[10px] font-bold text-neutral-500 uppercase">Guardian Info</div>
-                                <input type="text" placeholder="Parent/Guardian Name" value={parentName} onChange={e => setParentName(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
-                                <input type="tel" placeholder="Guardian Phone" value={parentPhone} onChange={e => setParentPhone(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
                                 
-                                <div className="text-[10px] font-bold text-neutral-500 uppercase mt-2">Extra Services</div>
-                                <label className="flex items-center gap-2 p-2 border border-neutral-100 rounded-lg cursor-pointer hover:bg-neutral-50">
-                                  <input type="checkbox" checked={hostelRequired} onChange={e => setHostelRequired(e.target.checked)} className="accent-[#138A36]" />
-                                  <span className="text-xs font-medium">Add Hostel Accommodation</span>
+                                <div className="text-[10px] font-bold text-neutral-500 uppercase">1. Development Package</div>
+                                <label className="flex items-start gap-2.5 p-3 border-2 border-emerald-300 bg-emerald-50/40 rounded-xl cursor-pointer">
+                                  <input type="checkbox" checked={developmentPackage} onChange={e => setDevelopmentPackage(e.target.checked)} className="accent-[#138A36] w-4 h-4 mt-0.5" />
+                                  <div className="flex-1 text-xs">
+                                    <span className="font-bold text-neutral-900 block">Student Development Package (+₦50,000)</span>
+                                    <span className="text-[11px] text-neutral-600 leading-tight block mt-0.5">
+                                      Includes Digital Skills, Vocational Training, Music & Arts Academy, and Sports.
+                                    </span>
+                                  </div>
                                 </label>
+
+                                {studyMode === 'onsite' && (
+                                  <>
+                                    <div className="text-[10px] font-bold text-neutral-500 uppercase mt-1">2. Accommodation (Onsite Only)</div>
+                                    <label className="flex items-start gap-2.5 p-3 border border-neutral-200 rounded-xl cursor-pointer hover:bg-neutral-50">
+                                      <input type="checkbox" checked={hostelRequired} onChange={e => setHostelRequired(e.target.checked)} className="accent-sky-600 w-4 h-4 mt-0.5" />
+                                      <div className="flex-1 text-xs">
+                                        <span className="font-bold text-neutral-900 block">On-Campus Hostel Accommodation (+₦100,000)</span>
+                                        <span className="text-[10px] text-amber-700 font-semibold leading-tight block mt-0.5">
+                                          * Note: Feeding is NOT included in hostel accommodation.
+                                        </span>
+                                      </div>
+                                    </label>
+                                  </>
+                                )}
+
+                                <div className="text-[10px] font-bold text-neutral-500 uppercase mt-2">3. Parent / Guardian Details</div>
+                                <input type="text" placeholder="Parent/Guardian Name" value={parentName} onChange={e => setParentName(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
+                                <input type="tel" placeholder="Guardian Phone Number" value={parentPhone} onChange={e => setParentPhone(e.target.value)} className="w-full p-3 border border-neutral-200 rounded-xl bg-neutral-50 text-sm focus:outline-none focus:border-[#138A36]" />
                                 
-                                <button onClick={() => (parentName && parentPhone) && setChatStep(7)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((parentName && parentPhone) ? "bg-[#138A36] text-white shadow-md hover:bg-[#0f732d]" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Review Application ➔</button>
+                                <button onClick={() => (parentName && parentPhone) && setChatStep(7)} className={"w-full p-3 rounded-xl font-bold transition-all " + ((parentName && parentPhone) ? "bg-[#138A36] text-white shadow-md hover:bg-[#0f732d]" : "bg-neutral-100 text-neutral-400 cursor-not-allowed")}>Review Summary ➔</button>
                                 <div className="text-center mt-1"><button onClick={() => setChatStep(5)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Back to previous</button></div>
                               </div>
                             )}
                             {chatStep > 6 && (
                               <div className="flex self-end items-center gap-2 max-w-[85%]">
                                 <div className="bg-neutral-900 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm shadow-md">
-                                  Guardian: {parentName} {hostelRequired && '(+ Hostel)'}
+                                  Guardian: {parentName} {developmentPackage && '• Dev Pkg (₦50k)'} {hostelRequired && '• Hostel (₦100k)'}
                                 </div>
                                 <button onClick={() => setChatStep(6)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">Edit</button>
                               </div>
@@ -3517,35 +4191,58 @@ export default function App() {
                         )}
                       </AnimatePresence>
 
-                      {/* Step 7: Final Summary (Reusing original submit structure) */}
+                      {/* Step 7: Final Summary Breakdown */}
                       <AnimatePresence>
                         {chatStep === 7 && (
                           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="flex flex-col gap-3 pb-8">
                             <div className="flex items-start gap-3">
                               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#138A36] to-emerald-400 shrink-0 mt-1 flex items-center justify-center"><Bot className="w-4 h-4 text-white"/></div>
                               <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-neutral-200 shadow-sm text-sm text-neutral-700 max-w-[85%]">
-                                <p>🎉 All set, {fullName.split(' ')[0]}! Please review your fee summary below and finalize your application.</p>
+                                <p>🎉 All set, {fullName.split(' ')[0]}! Review your itemized application breakdown below before proceeding to checkout.</p>
                               </div>
                             </div>
                             <div className="ml-11">
-                              <div className="bg-neutral-900 text-white p-5 rounded-2xl flex flex-col gap-2.5 max-w-sm mb-4">
-                                <h4 className="text-[9px] font-black uppercase tracking-widest text-neutral-400 border-b border-neutral-700 pb-2 mb-1">📋 Application Summary</h4>
-                                <div className="flex justify-between text-xs"><span className="text-neutral-300">Registration</span><span className="font-mono font-bold">₦15,000</span></div>
-                                <div className="flex justify-between text-xs"><span className="text-neutral-300">Acceptance</span><span className="font-mono font-bold">₦10,000</span></div>
-                                <div className="border-t border-neutral-700 pt-2 mt-1">
-                                  <div className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mb-1">{selectedProgram}</div>
-                                  <div className="flex justify-between text-xs"><span className="text-neutral-400 pl-2">↳ {selectedTrack}</span><span className="font-mono font-bold">₦{getPathwayTuition().toLocaleString()}</span></div>
+                              <div className="bg-neutral-900 text-white p-5 rounded-2xl flex flex-col gap-2.5 max-w-sm mb-4 shadow-xl">
+                                <div className="flex items-center justify-between border-b border-neutral-700 pb-2 mb-1">
+                                  <h4 className="text-[9px] font-black uppercase tracking-widest text-neutral-400">📋 Application Summary</h4>
+                                  <span className="text-[9px] font-mono font-bold uppercase bg-white/10 px-2 py-0.5 rounded text-emerald-300">
+                                    {studyMode === 'online' ? 'Online' : 'Onsite'}
+                                  </span>
                                 </div>
-                                {hostelRequired && (
-                                  <div className="border-t border-neutral-700 pt-2 flex flex-col gap-1">
-                                    <div className="flex justify-between text-xs text-sky-400"><span>Hostel Accommodation</span><span className="font-mono font-bold">₦100,000</span></div>
+                                
+                                <div className="flex justify-between text-xs"><span className="text-neutral-300">Registration Fee</span><span className="font-mono font-bold">₦15,000</span></div>
+                                <div className="flex justify-between text-xs"><span className="text-neutral-300">Acceptance Fee</span><span className="font-mono font-bold">₦10,000</span></div>
+                                
+                                <div className="border-t border-neutral-800 pt-2 mt-1">
+                                  <div className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mb-1">{selectedProgram}</div>
+                                  <div className="flex justify-between text-xs">
+                                    <span className="text-neutral-400 pl-2">↳ {selectedTrack}</span>
+                                    <span className="font-mono font-bold">₦{getPathwayTuition(selectedProgram, selectedTrack, studyMode).toLocaleString()}</span>
+                                  </div>
+                                </div>
+
+                                {developmentPackage && (
+                                  <div className="border-t border-neutral-800 pt-2 flex justify-between text-xs text-emerald-400">
+                                    <span>Student Development Package</span>
+                                    <span className="font-mono font-bold">₦50,000</span>
                                   </div>
                                 )}
-                                <div className="border-t border-neutral-600 pt-3 flex justify-between items-center mt-1">
-                                  <span className="text-xs font-black uppercase tracking-widest text-neutral-200">Total Payable</span>
-                                  <span className="text-xl font-mono font-black text-emerald-400">₦{calculateTotalFees().toLocaleString()}</span>
+
+                                {studyMode === 'onsite' && hostelRequired && (
+                                  <div className="border-t border-neutral-800 pt-2 flex justify-between text-xs text-sky-400">
+                                    <span>Hostel Accommodation</span>
+                                    <span className="font-mono font-bold">₦100,000</span>
+                                  </div>
+                                )}
+
+                                <div className="border-t border-neutral-700 pt-3 flex justify-between items-center mt-1">
+                                  <span className="text-xs font-black uppercase tracking-widest text-neutral-200">Total Amount</span>
+                                  <span className="text-xl font-mono font-black text-emerald-400">
+                                    ₦{calculateTotalFees(selectedProgram, selectedTrack, studyMode, developmentPackage, hostelRequired).toLocaleString()}
+                                  </span>
                                 </div>
                               </div>
+
                               <form onSubmit={handleAdmissionSubmit} className="max-w-sm">
                                 <button
                                   type="submit"
@@ -3555,7 +4252,7 @@ export default function App() {
                                   {submittingApp ? (
                                     <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>Transmitting...</>
                                   ) : (
-                                    <>Submit Application Dossier <ArrowRight className="w-4 h-4 stroke-[3]" /></>
+                                    <>Proceed to Payment Invoice <ArrowRight className="w-4 h-4 stroke-[3]" /></>
                                   )}
                                 </button>
                                 <div className="text-center mt-3"><button type="button" onClick={() => setChatStep(6)} className="text-[10px] text-neutral-400 hover:text-neutral-600 underline">← Wait, I need to edit something</button></div>
