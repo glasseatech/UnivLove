@@ -275,7 +275,7 @@ app.use(express.urlencoded({ extended: true }));
   });
 
   app.post("/api/applications/update", async (req, res) => {
-    const { id, status, program, track, notes, fullName, email, phone, paymentRef, paymentAmount } = req.body;
+    const { id, status, program, track, notes, fullName, email, phone, paymentRef, paymentAmount, studyMode, programCategory, registrationFee, acceptanceFee, tuitionFee, developmentPackage, developmentPackageFee, accommodationRequired, accommodationFee, totalAmount } = req.body;
     if (!id) {
       return res.status(400).json({ success: false, error: "Application record ID is required." });
     }
@@ -292,6 +292,16 @@ app.use(express.urlencoded({ extended: true }));
     if (phone !== undefined) appData.phone = phone;
     if (paymentRef !== undefined) appData.paymentRef = paymentRef;
     if (paymentAmount !== undefined) appData.paymentAmount = Number(paymentAmount);
+    if (studyMode !== undefined) appData.studyMode = studyMode;
+    if (programCategory !== undefined) appData.programCategory = programCategory;
+    if (registrationFee !== undefined) appData.registrationFee = Number(registrationFee);
+    if (acceptanceFee !== undefined) appData.acceptanceFee = Number(acceptanceFee);
+    if (tuitionFee !== undefined) appData.tuitionFee = Number(tuitionFee);
+    if (developmentPackage !== undefined) appData.developmentPackage = Boolean(developmentPackage);
+    if (developmentPackageFee !== undefined) appData.developmentPackageFee = Number(developmentPackageFee);
+    if (accommodationRequired !== undefined) appData.accommodationRequired = accommodationRequired;
+    if (accommodationFee !== undefined) appData.accommodationFee = Number(accommodationFee);
+    if (totalAmount !== undefined) appData.totalAmount = Number(totalAmount);
     appData.updatedAt = new Date().toISOString();
 
     if (db) {
@@ -435,7 +445,28 @@ app.use(express.urlencoded({ extended: true }));
 
   // 2. Post New Admission Application
   app.post("/api/apply", async (req, res) => {
-    const { fullName, email, phone, program, track, subProgram, notes, paymentRef, paymentAmount, paymentStatus } = req.body;
+    const { 
+      fullName, 
+      email, 
+      phone, 
+      program, 
+      track, 
+      subProgram, 
+      notes, 
+      paymentRef, 
+      paymentAmount, 
+      paymentStatus,
+      studyMode,
+      programCategory,
+      registrationFee,
+      acceptanceFee,
+      tuitionFee,
+      developmentPackage,
+      developmentPackageFee,
+      accommodationRequired,
+      accommodationFee,
+      totalAmount
+    } = req.body;
     
     if (!fullName || !email || !phone || !program) {
       return res.status(400).json({ success: false, error: "Please provide all required fields." });
@@ -449,10 +480,20 @@ app.use(express.urlencoded({ extended: true }));
       program,
       track: track || "General Talent",
       subProgram: subProgram || "",
+      studyMode: studyMode || "onsite",
+      programCategory: programCategory || "",
+      registrationFee: registrationFee !== undefined ? Number(registrationFee) : 15000,
+      acceptanceFee: acceptanceFee !== undefined ? Number(acceptanceFee) : 10000,
+      tuitionFee: tuitionFee !== undefined ? Number(tuitionFee) : 0,
+      developmentPackage: Boolean(developmentPackage),
+      developmentPackageFee: developmentPackageFee !== undefined ? Number(developmentPackageFee) : (developmentPackage ? 50000 : 0),
+      accommodationRequired: accommodationRequired === true || accommodationRequired === 'yes' ? 'yes' : 'no',
+      accommodationFee: accommodationFee !== undefined ? Number(accommodationFee) : (accommodationRequired === true || accommodationRequired === 'yes' ? 100000 : 0),
+      totalAmount: totalAmount !== undefined ? Number(totalAmount) : (paymentAmount || 0),
       status: paymentStatus === "Paid" ? "Verified & Paid" : "Awaiting Verification",
       notes: notes || "No additional comments.",
       paymentRef: paymentRef || "Direct / Cash Pending",
-      paymentAmount: paymentAmount || 0,
+      paymentAmount: totalAmount !== undefined ? Number(totalAmount) : (paymentAmount || 0),
       createdAt: new Date().toISOString()
     };
 
